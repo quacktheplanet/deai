@@ -1,6 +1,6 @@
 # DAI — Decentralized AI Network
 
-[![CI](https://github.com/lucasdemeritt-ops/dai/actions/workflows/ci.yml/badge.svg)](https://github.com/lucasdemeritt-ops/dai/actions/workflows/ci.yml)
+[![CI](https://github.com/quacktheplanet/dai/actions/workflows/ci.yml/badge.svg)](https://github.com/quacktheplanet/dai/actions/workflows/ci.yml)
 
 > A permissionless, censorship-resistant compute marketplace where anyone with a GPU or CPU earns by powering AI inference.
 
@@ -12,7 +12,7 @@
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/lucasdemeritt-ops/dai.git
+git clone https://github.com/quacktheplanet/dai.git
 cd dai
 pip install -r requirements.txt
 

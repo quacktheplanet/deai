@@ -21,7 +21,7 @@ Read [docs/SECURITY.md](docs/SECURITY.md). The rules there are non-negotiable. P
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/lucasdemeritt-ops/dai.git
+git clone https://github.com/quacktheplanet/dai.git
 cd dai
 pip install -r requirements.txt
 ```
