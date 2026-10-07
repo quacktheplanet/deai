@@ -73,6 +73,7 @@ SUBMITTED
                                           └─> COMPARED (§4)
                                                 ├─ agree    ─> FINALIZED
                                                 ├─ no checker free ─> FINALIZED*
+                                                ├─ comparator down ─> FINALIZED*
                                                 └─ disagree ─> DISPUTED
                                                                   └─> ESCALATED (§5)
                                                                         ├─ primary upheld ─> FINALIZED
@@ -90,7 +91,14 @@ SUBMITTED
   punish a provider for a thin network; the task is recorded as *unverified*.
   This is a deliberate availability-over-strictness choice for the bootstrap
   phase and must be revisited before mainnet (an attacker could DoS the checker
-  pool to force this branch).
+  pool to force this branch). The same applies when the comparator itself is
+  unavailable (e.g. the embedding model is still loading): its failure says
+  nothing about either result, so it must never become `DISPUTED`. The
+  sequence ratio may still *confirm* near-identical text, but a low ratio is
+  not evidence (honest paraphrases score ~0.3). A comparator failure during a
+  committee tally likewise falls back to `FINALIZED*`. The orchestrator
+  reports which outcome a task got in the `X-DAI-Verification` response header
+  (`verified` / `unverified` / `unchecked`) and in `/status` stats.
 - `DISPUTED → ESCALATED` is currently a **stub**: the implementation rejects
   the result to the requester and flags `escalation_required`; it does **not**
   convene a committee and does **not** auto-slash. This is intentional (§5.2).
@@ -248,7 +256,7 @@ problem, as ECONOMICS.md §4–§5 state.
 |---|---|---|---|
 | `p` | per-task recheck probability | bootstrap default `0.0`; target `>0` & conditioned | `--verify-sample-rate` / env |
 | `agreement_threshold` | accept iff similarity ≥ this | bootstrap default `0.85`; final value empirical | `--verify-threshold` / env |
-| comparison method | how two outputs are compared | **decided**: semantic embedding cosine; threshold empirical | `--embedding-url` / `DAI_EMBEDDING_URL`; fallback: sequence ratio |
+| comparison method | how two outputs are compared | **decided**: semantic embedding cosine; threshold empirical | `--embedding-url` / `DAI_EMBEDDING_URL`; when unavailable: sequence ratio may confirm a match, otherwise `FINALIZED*` (never a mismatch) |
 | reference stack / model | pinned runtime+quant+decode+seed | **deferred** (no registry yet) | future model registry |
 | committee size `N`, quorum | adjudication panel | **deferred** | unbuilt |
 | appeal window | delay before slash is final | **deferred** | unbuilt |
@@ -281,6 +289,8 @@ What `protocol/{verification,orchestrator,ledger,chain_ledger,merkle,model_regis
 - ✅ Disagreement → reject + `escalation_required`, **no auto-slash** (§5.2
   step 1).
 - ✅ No-checker-free → optimistic accept, logged unverified (§2 `FINALIZED*`).
+  Same for an unavailable comparator; the embedding model is warmed at
+  orchestrator start and gets a longer timeout while cold.
 - ✅ `p` / threshold as static knobs, default-off (§3, §7).
 - ✅ **Committee adjudication, appeal window, verified-dishonesty slash**
   (§5.2 steps 2–4, fully specified in §13): `protocol/committee.py` +

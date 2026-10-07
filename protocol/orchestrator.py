@@ -57,7 +57,7 @@ import uvicorn
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Depends, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -68,7 +68,9 @@ from shared.schemas import (
     WSMessage,
 )
 from ledger import Ledger
-from verification import Verifier, ContentVerifier, RedundantExecutionVerifier, make_verifier
+from verification import (
+    Verifier, ContentVerifier, RedundantExecutionVerifier, ComparatorUnavailable, make_verifier,
+)
 from model_registry import ModelRegistry, ModelStack
 from committee import (
     CommitteeOutcome, Verdict, quorum, tally_votes,
@@ -85,6 +87,11 @@ log = logging.getLogger("orchestrator")
 
 @asynccontextmanager
 async def _lifespan(app: FastAPI):
+    # Load the embedding model before the first comparison needs it (a cold
+    # load can exceed the comparator's normal timeout).
+    warm = getattr(getattr(verifier, "_comparator", None), "warm_up", None)
+    if warm is not None:
+        asyncio.create_task(asyncio.to_thread(warm))
     if chain_ledger is not None:
         async def _loop():
             while True:
@@ -148,8 +155,13 @@ pending_events: Dict[str, asyncio.Event] = {}
 # task_id → TaskResult
 results: Dict[str, TaskResult] = {}
 
-# simple stats
-stats = {"requests": 0, "completed": 0, "failed": 0}
+# simple stats. Of the completed tasks: verified = a second node's result was
+# compared and agreed; unverified = a recheck was attempted but could not
+# decide (no free checker, comparator down, no committee quorum) and the task
+# was accepted optimistically; unchecked = no recheck (not sampled, content-only
+# verifier, or the model has no registered stack).
+stats = {"requests": 0, "completed": 0, "failed": 0,
+         "verified": 0, "unverified": 0, "unchecked": 0}
 
 # earnings ledger
 ledger = Ledger()
@@ -533,7 +545,16 @@ async def _convene_committee(
         )
         return None
 
-    return tally_votes(primary.content, checker.content, contents, comparator, threshold)
+    try:
+        return await asyncio.to_thread(
+            tally_votes, primary.content, checker.content, contents, comparator, threshold
+        )
+    except ComparatorUnavailable as e:
+        log.warning(
+            f"COMMITTEE  id={base_task.task_id}  comparator unavailable ({e}) "
+            f"— fallback to FINALIZED*"
+        )
+        return None
 
 
 def _apply_slash(node_id: str, wallet: Optional[str], fraction: float, reason: str) -> None:
@@ -571,7 +592,7 @@ async def _schedule_slash(node_id: str, wallet: Optional[str], fraction: float,
 # ── HTTP: OpenAI-compatible inference endpoint ────────────────────────────────
 
 @app.post("/v1/chat/completions", response_model=ChatResponse)
-async def chat_completions(req: ChatRequest, _auth=Depends(_check_api_key)):
+async def chat_completions(req: ChatRequest, response: Response, _auth=Depends(_check_api_key)):
     stats["requests"] += 1
 
     # Apply registered stack parameters if this model has one (§12.4).
@@ -621,7 +642,9 @@ async def chat_completions(req: ChatRequest, _auth=Depends(_check_api_key)):
 
     # Optimistic redundant check (Standard tier, docs/VERIFICATION.md). Sampled
     # and silent: the node is not told it is being checked.
+    verification = "unchecked"
     if effective_verifier.should_recheck(task, primary):
+        verification = "unverified"
         shadow = Task(
             model=task.model,
             messages=task.messages,
@@ -638,12 +661,17 @@ async def chat_completions(req: ChatRequest, _auth=Depends(_check_api_key)):
             # task went unverified.
             log.warning(f"VERIFY skip   id={task.task_id}  reason=no-checker-available")
         else:
-            outcome = effective_verifier.compare(task, primary, r2)
+            # In a thread: an embedding comparator makes a blocking HTTP call
+            # that can take a while when its model is cold.
+            outcome = await asyncio.to_thread(effective_verifier.compare, task, primary, r2)
+            label = "unverified" if outcome.unverified else ("OK " if outcome.accepted else "MISMATCH")
             log.info(
-                f"VERIFY {'OK ' if outcome.accepted else 'MISMATCH'}  "
+                f"VERIFY {label}  "
                 f"id={task.task_id}  primary={primary_node.info.node_id}  "
                 f"checker={n2.info.node_id}  {outcome.detail}"
             )
+            if outcome.accepted and not outcome.unverified:
+                verification = "verified"
             if not outcome.accepted:
                 # §13: convene a committee, decide by majority, and only on a
                 # confirmed dishonest verdict schedule a delayed slash. A
@@ -670,6 +698,7 @@ async def chat_completions(req: ChatRequest, _auth=Depends(_check_api_key)):
                         f"committee verdict CHECKER dishonest on task {task.task_id}",
                         _appeal_window,
                     ))
+                    verification = "verified"
                     # primary wins → fall through to accrual.
                 elif committee_outcome.verdict is Verdict.CHECKER_UPHELD:
                     log.warning(
@@ -701,8 +730,12 @@ async def chat_completions(req: ChatRequest, _auth=Depends(_check_api_key)):
                     )
 
     # Accepted → finalize the reward (off-chain ledger + optional on-chain mint).
-    primary.verified = True
+    # Unverified tasks are paid too (optimistic, as with no free checker); the
+    # header and stats say which it was.
+    primary.verified = verification == "verified"
     stats["completed"] += 1
+    stats[verification] += 1
+    response.headers["X-DAI-Verification"] = verification
     earned = ledger.record_completion(
         node_id=primary_node.info.node_id,
         task_id=primary.task_id,

@@ -21,6 +21,10 @@ Run (real inference via Ollama):
 
 Ollama auto-detect (reads your installed models automatically):
     python compute/node.py --ollama --auto
+
+With real inference the node loads its model before joining (a cold model can
+take longer to load than the orchestrator waits for a task) and, on Ollama,
+keeps it loaded while idle. --no-warmup turns both off.
 """
 
 import asyncio
@@ -50,6 +54,11 @@ logging.basicConfig(
 log = logging.getLogger("node")
 
 HEARTBEAT_INTERVAL = 15  # seconds
+
+# Ollama unloads an idle model after 5 minutes by default; reloading a large
+# one can take longer than the orchestrator's task timeout. An idle node pokes
+# its model a little more often than that to keep it resident.
+KEEP_WARM_INTERVAL = 240  # seconds
 
 
 # ── Ollama helpers ────────────────────────────────────────────────────────────
@@ -94,6 +103,55 @@ async def ollama_resolve_model(requested: str, available: list[str]) -> str:
     # Fall back to first available
     log.warning(f"Model '{requested}' not found in Ollama. Using '{available[0]}' instead.")
     return available[0]
+
+
+# ── Warm-up ───────────────────────────────────────────────────────────────────
+
+async def warm_model(model: str, ollama_url: str, available_models: list[str], timeout: float = 600.0) -> bool:
+    """
+    Load `model` into memory before taking tasks: the first request to a cold
+    model pays the whole load (over a minute for a 14B model), which used to
+    land on a real task and exceed the orchestrator's task timeout.
+
+    Ollama (its model list is known): an empty /api/generate prompt loads the
+    model without generating anything, so this is also cheap enough to repeat
+    as a keep-alive. Other OpenAI-compatible backends: a one-token completion.
+    """
+    resolved = await ollama_resolve_model(model, available_models)
+    started = time.time()
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            if available_models:
+                resp = await client.post(f"{ollama_url}/api/generate",
+                                         json={"model": resolved, "prompt": ""})
+            else:
+                resp = await client.post(f"{ollama_url}/v1/chat/completions", json={
+                    "model": resolved,
+                    "messages": [{"role": "user", "content": "hi"}],
+                    "max_tokens": 1,
+                    "temperature": 0.0,
+                })
+            resp.raise_for_status()
+    except Exception as e:
+        log.warning(f"Warm-up failed  model={resolved}  err={type(e).__name__}: {e}")
+        return False
+    took = time.time() - started
+    if took > 1.0:
+        log.info(f"Model loaded  model={resolved}  {took:.1f}s")
+    return True
+
+
+def warm_target(models: list[str], available_models: list[str]) -> str | None:
+    """The one model a node keeps loaded: the first chat model it advertises.
+    Keeping several warm on a GPU that holds one would make them evict each
+    other."""
+    for m in models:
+        if m == "any":
+            chat = [a for a in available_models if "embed" not in a.lower()]
+            return chat[0] if chat else None
+        if "embed" not in m.lower():
+            return m
+    return None
 
 
 # ── Inference engines ─────────────────────────────────────────────────────────
@@ -171,12 +229,20 @@ async def run_ollama_inference(
 
 # ── Main node loop ────────────────────────────────────────────────────────────
 
-async def run_node(orchestrator_url: str, node_info: NodeInfo, use_ollama: bool, ollama_url: str, available_models: list[str]):
+async def run_node(orchestrator_url: str, node_info: NodeInfo, use_ollama: bool, ollama_url: str,
+                   available_models: list[str], warm: str | None = None):
     log.info(f"Connecting to  {orchestrator_url}")
     log.info(f"Node ID:       {node_info.node_id}")
     log.info(f"Models:        {node_info.models}")
     log.info(f"GPU:           {node_info.gpu}")
     log.info(f"Inference:     {'Ollama (real)' if use_ollama else 'Mock'}")
+
+    if warm:
+        # Before registering: the orchestrator only sees this node once it can
+        # answer in normal time.
+        log.info(f"Warming up     {warm} (loading into memory before taking tasks)...")
+        await warm_model(warm, ollama_url, available_models)
+    last_activity = [time.time()]
 
     backoff = 1
     while True:
@@ -204,7 +270,16 @@ async def run_node(orchestrator_url: str, node_info: NodeInfo, use_ollama: bool,
                         except Exception:
                             break
 
+                async def keep_warm():
+                    # Ollama only; other backends keep their model loaded.
+                    while True:
+                        await asyncio.sleep(HEARTBEAT_INTERVAL)
+                        if time.time() - last_activity[0] >= KEEP_WARM_INTERVAL:
+                            last_activity[0] = time.time()
+                            await warm_model(warm, ollama_url, available_models)
+
                 heartbeat_task = asyncio.create_task(heartbeat())
+                warm_task = asyncio.create_task(keep_warm()) if warm and available_models else None
                 log.info("Waiting for tasks...")
 
                 try:
@@ -221,6 +296,7 @@ async def run_node(orchestrator_url: str, node_info: NodeInfo, use_ollama: bool,
                             seed = payload.get("seed")  # None unless model has a registered stack
 
                             log.info(f"Task received  id={task_id}  model={model}  messages={len(messages)}  seed={seed}")
+                            last_activity[0] = time.time()
 
                             try:
                                 if use_ollama:
@@ -253,6 +329,8 @@ async def run_node(orchestrator_url: str, node_info: NodeInfo, use_ollama: bool,
                                 await ws.send(fail_msg.model_dump_json())
                 finally:
                     heartbeat_task.cancel()
+                    if warm_task:
+                        warm_task.cancel()
 
         except (websockets.exceptions.ConnectionClosedError,
                 websockets.exceptions.ConnectionClosedOK,
@@ -283,6 +361,8 @@ def parse_args():
     parser.add_argument("--auto", action="store_true", help="Auto-detect installed Ollama models and advertise them")
     parser.add_argument("--wallet", default=os.getenv("DAI_WALLET"), help="EVM wallet address for on-chain rewards (optional in mock mode)")
     parser.add_argument("--project", default=os.getenv("DAI_PROJECT"), help="Dedicate this node to a specific project (only receives tasks tagged with this project)")
+    parser.add_argument("--no-warmup", action="store_true",
+                        help="Don't load the model before joining or keep it loaded while idle (Ollama unloads idle models after 5 minutes)")
     return parser.parse_args()
 
 
@@ -331,12 +411,16 @@ if __name__ == "__main__":
             project=args.project or None,
         )
 
+        use_ollama = args.ollama or args.auto
+        warm = None if (args.no_warmup or not use_ollama) else warm_target(models, available_models)
+
         await run_node(
             orchestrator_url=args.orchestrator,
             node_info=node_info,
-            use_ollama=args.ollama or args.auto,
+            use_ollama=use_ollama,
             ollama_url=ollama_url,
             available_models=available_models,
+            warm=warm,
         )
 
     try:

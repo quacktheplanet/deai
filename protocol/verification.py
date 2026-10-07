@@ -70,6 +70,11 @@ def default_comparator(a: str, b: str) -> float:
     return difflib.SequenceMatcher(None, na, nb).ratio()
 
 
+class ComparatorUnavailable(Exception):
+    """The comparator could not produce a score (e.g. the embedding endpoint is
+    down or still loading). Not evidence about either result."""
+
+
 @dataclass
 class VerificationOutcome:
     accepted: bool
@@ -78,6 +83,9 @@ class VerificationOutcome:
     agreement: Optional[float] = None
     escalation_required: bool = False
     detail: str = ""
+    # Accepted without a real comparison (the comparator was unavailable).
+    # Paid optimistically like a task with no checker; never escalated.
+    unverified: bool = False
 
 
 # ── Verifier interface ────────────────────────────────────────────────────────
@@ -164,14 +172,32 @@ class RedundantExecutionVerifier(Verifier):
     def compare(
         self, task: Task, primary: TaskResult, redundant: TaskResult
     ) -> VerificationOutcome:
-        score = self._comparator(primary.content, redundant.content)
+        try:
+            score = self._comparator(primary.content, redundant.content)
+            how = ""
+        except ComparatorUnavailable as e:
+            # The sequence ratio can confirm near-identical text, but a low
+            # ratio says nothing about paraphrases (two honest answers worded
+            # differently score ~0.3). So it may only ever accept: below the
+            # threshold the task is unverified, never a mismatch — a mismatch
+            # convenes a committee that can slash an honest node.
+            score = default_comparator(primary.content, redundant.content)
+            if score < self.agreement_threshold:
+                return VerificationOutcome(
+                    accepted=True,
+                    method="unverified",
+                    rechecked=True,
+                    unverified=True,
+                    detail=f"comparator unavailable ({e}); accepted unverified",
+                )
+            how = " (sequence ratio; comparator unavailable)"
         if score >= self.agreement_threshold:
             return VerificationOutcome(
                 accepted=True,
                 method="redundant_match",
                 rechecked=True,
                 agreement=score,
-                detail=f"agreement {score:.3f} >= {self.agreement_threshold:.3f}",
+                detail=f"agreement {score:.3f} >= {self.agreement_threshold:.3f}{how}",
             )
         # Two samples disagree. We cannot attribute blame with only two
         # samples, and slashing an honest provider on a false positive is
@@ -217,33 +243,72 @@ class EmbeddingComparator:
       - OpenAI API:         https://api.openai.com
       - Any local serving
 
-    Uses the synchronous httpx client. Blocks the event loop briefly (~10-50ms
-    for a localhost Ollama call), which is acceptable at current scale. If
-    the call fails for any reason, falls back to default_comparator so a
-    temporary embedding outage does not break verification entirely.
+    Synchronous; the orchestrator calls it from a worker thread so a slow
+    call never stalls the event loop.
+
+    A cold embedding model (first call, or Ollama evicted it to make room for
+    a chat model) can take far longer than a warm call, so until a call has
+    succeeded — and once more after any timeout — the generous
+    ``cold_timeout`` applies. ``warm_up()`` loads the model at startup.
+
+    If no score can be had, raises ComparatorUnavailable. It does NOT fall
+    back to the sequence ratio itself: that ratio scores honest paraphrases
+    ~0.3, which used to turn an embedding outage into false mismatches.
+    The verifier decides what an unavailable comparator means.
 
     Enable with --embedding-url <base_url>; default model nomic-embed-text
     is available via `ollama pull nomic-embed-text`.
     """
 
-    def __init__(self, base_url: str, model: str = "nomic-embed-text"):
+    def __init__(self, base_url: str, model: str = "nomic-embed-text",
+                 timeout: float = 10.0, cold_timeout: float = 120.0):
         self._url = base_url.rstrip("/") + "/v1/embeddings"
         self._model = model
+        self.timeout = timeout
+        self.cold_timeout = cold_timeout
+        self._warm = False
+
+    def _embed(self, texts: list, timeout: float) -> list:
+        import httpx
+        resp = httpx.post(
+            self._url,
+            json={"model": self._model, "input": texts},
+            timeout=timeout,
+        )
+        resp.raise_for_status()
+        items = sorted(resp.json()["data"], key=lambda x: x["index"])
+        if len(items) != len(texts):
+            raise ValueError(f"expected {len(texts)} embeddings, got {len(items)}")
+        self._warm = True
+        return [x["embedding"] for x in items]
+
+    def warm_up(self) -> bool:
+        """Load the embedding model now so the first verification is not the
+        one that waits for it. Returns False (and logs) if it could not."""
+        try:
+            self._embed(["warm-up"], self.cold_timeout)
+            log.info(f"Embedding comparator warm  model={self._model}")
+            return True
+        except Exception as e:
+            log.warning(f"Embedding comparator warm-up failed ({e}); will retry on first use")
+            return False
 
     def __call__(self, a: str, b: str) -> float:
+        import httpx
         try:
-            import httpx
-            resp = httpx.post(
-                self._url,
-                json={"model": self._model, "input": [a, b]},
-                timeout=10.0,
-            )
-            resp.raise_for_status()
-            items = sorted(resp.json()["data"], key=lambda x: x["index"])
-            return _cosine(items[0]["embedding"], items[1]["embedding"])
+            try:
+                ea, eb = self._embed([a, b], self.timeout if self._warm else self.cold_timeout)
+            except httpx.TimeoutException:
+                if not self._warm:
+                    raise
+                # Probably evicted and reloading: one more try, cold-sized.
+                self._warm = False
+                log.warning("Embedding call timed out; retrying with the cold-start timeout")
+                ea, eb = self._embed([a, b], self.cold_timeout)
+            return _cosine(ea, eb)
         except Exception as e:
-            log.warning(f"Embedding comparator failed ({e}); falling back to sequence ratio")
-            return default_comparator(a, b)
+            log.warning(f"Embedding comparator unavailable ({type(e).__name__}: {e})")
+            raise ComparatorUnavailable(f"{type(e).__name__}: {e}") from e
 
 
 def make_verifier(
