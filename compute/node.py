@@ -25,6 +25,11 @@ Ollama auto-detect (reads your installed models automatically):
 With real inference the node loads its model before joining (a cold model can
 take longer to load than the orchestrator waits for a task) and, on Ollama,
 keeps it loaded while idle. --no-warmup turns both off.
+
+Sharing the GPU with your own work: --sleep-after 10 lets an idle node unload its
+model after 10 minutes (Ollama), giving the memory back. It stays connected and
+tells the orchestrator it is cold; the orchestrator prefers warm nodes and, when
+it does send this one a task, allows time for the model to load.
 """
 
 import asyncio
@@ -141,6 +146,56 @@ async def warm_model(model: str, ollama_url: str, available_models: list[str], t
     return True
 
 
+async def unload_model(model: str, ollama_url: str, available_models: list[str]) -> bool:
+    """Ask Ollama to drop the model from memory now (keep_alive 0)."""
+    resolved = await ollama_resolve_model(model, available_models)
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            resp = await client.post(f"{ollama_url}/api/generate",
+                                     json={"model": resolved, "keep_alive": 0})
+            resp.raise_for_status()
+        return True
+    except Exception as e:
+        log.warning(f"Unload failed  model={resolved}  err={type(e).__name__}: {e}")
+        return False
+
+
+class Warmth:
+    """Whether the node's model is loaded, and what an idle node should do next:
+    'poke' it so Ollama doesn't unload it, or - with a sleep timer - 'sleep'
+    (unload it and tell the orchestrator)."""
+
+    def __init__(self, warm: bool, sleep_after: float | None, can_unload: bool, now: float | None = None):
+        now = time.time() if now is None else now
+        self.warm = warm
+        self.sleep_after = sleep_after if can_unload else None
+        self.can_unload = can_unload
+        self.last_task = self.last_poke = now
+
+    def task_started(self, now: float) -> None:
+        self.last_task = now
+
+    def task_finished(self, now: float) -> bool:
+        """The model just ran, so it is loaded. True if that is news (was cold).
+        A node that doesn't manage its model (--no-warmup on Ollama) keeps
+        reporting cold: Ollama may unload it again at any time."""
+        self.last_task = self.last_poke = now
+        if not self.can_unload:
+            return False
+        woke = not self.warm
+        self.warm = True
+        return woke
+
+    def next_action(self, now: float) -> str | None:
+        if not self.warm or not self.can_unload:
+            return None
+        if self.sleep_after is not None and now - self.last_task >= self.sleep_after:
+            return "sleep"
+        if now - self.last_poke >= KEEP_WARM_INTERVAL:
+            return "poke"
+        return None
+
+
 def warm_target(models: list[str], available_models: list[str]) -> str | None:
     """The one model a node keeps loaded: the first chat model it advertises.
     Keeping several warm on a GPU that holds one would make them evict each
@@ -230,19 +285,29 @@ async def run_ollama_inference(
 # ── Main node loop ────────────────────────────────────────────────────────────
 
 async def run_node(orchestrator_url: str, node_info: NodeInfo, use_ollama: bool, ollama_url: str,
-                   available_models: list[str], warm: str | None = None):
+                   available_models: list[str], warm: str | None = None, sleep_after: float | None = None):
     log.info(f"Connecting to  {orchestrator_url}")
     log.info(f"Node ID:       {node_info.node_id}")
     log.info(f"Models:        {node_info.models}")
     log.info(f"GPU:           {node_info.gpu}")
     log.info(f"Inference:     {'Ollama (real)' if use_ollama else 'Mock'}")
 
+    # Ollama (its model list is known) can load and unload on request; other
+    # backends keep their one model loaded, so they are always warm.
+    ollama = use_ollama and bool(available_models)
+    loaded = True
     if warm:
         # Before registering: the orchestrator only sees this node once it can
         # answer in normal time.
         log.info(f"Warming up     {warm} (loading into memory before taking tasks)...")
-        await warm_model(warm, ollama_url, available_models)
-    last_activity = [time.time()]
+        loaded = await warm_model(warm, ollama_url, available_models)
+    elif ollama:
+        loaded = False  # --no-warmup: the first task will load the model
+    warmth = Warmth(loaded, sleep_after, can_unload=ollama and warm is not None)
+    if sleep_after and not warmth.sleep_after:
+        log.warning("--sleep-after needs an Ollama backend and warm-up; ignoring it")
+    elif sleep_after:
+        log.info(f"Sleep:         unload {warm} after {sleep_after / 60:.0f} min idle")
 
     backoff = 1
     while True:
@@ -250,6 +315,7 @@ async def run_node(orchestrator_url: str, node_info: NodeInfo, use_ollama: bool,
             async with websockets.connect(orchestrator_url, ping_interval=None) as ws:
                 backoff = 1
 
+                node_info.warm = warmth.warm
                 register_msg = WSMessage(type="register", payload=node_info.model_dump())
                 await ws.send(register_msg.model_dump_json())
 
@@ -270,16 +336,30 @@ async def run_node(orchestrator_url: str, node_info: NodeInfo, use_ollama: bool,
                         except Exception:
                             break
 
+                async def send_warmth():
+                    status = WSMessage(type="status", payload={"node_id": node_info.node_id,
+                                                               "warm": warmth.warm})
+                    await ws.send(status.model_dump_json())
+
                 async def keep_warm():
                     # Ollama only; other backends keep their model loaded.
                     while True:
                         await asyncio.sleep(HEARTBEAT_INTERVAL)
-                        if time.time() - last_activity[0] >= KEEP_WARM_INTERVAL:
-                            last_activity[0] = time.time()
+                        action = warmth.next_action(time.time())
+                        if action == "poke":
+                            warmth.last_poke = time.time()
                             await warm_model(warm, ollama_url, available_models)
+                        elif action == "sleep":
+                            log.info(f"Idle {warmth.sleep_after / 60:.0f} min: unloading {warm} "
+                                     "(the next task will load it again)")
+                            if await unload_model(warm, ollama_url, available_models):
+                                warmth.warm = False
+                                await send_warmth()
+                            else:
+                                warmth.last_task = time.time()  # try again after another full wait
 
                 heartbeat_task = asyncio.create_task(heartbeat())
-                warm_task = asyncio.create_task(keep_warm()) if warm and available_models else None
+                warm_task = asyncio.create_task(keep_warm()) if warmth.can_unload else None
                 log.info("Waiting for tasks...")
 
                 try:
@@ -296,7 +376,7 @@ async def run_node(orchestrator_url: str, node_info: NodeInfo, use_ollama: bool,
                             seed = payload.get("seed")  # None unless model has a registered stack
 
                             log.info(f"Task received  id={task_id}  model={model}  messages={len(messages)}  seed={seed}")
-                            last_activity[0] = time.time()
+                            warmth.task_started(time.time())
 
                             try:
                                 if use_ollama:
@@ -319,6 +399,8 @@ async def run_node(orchestrator_url: str, node_info: NodeInfo, use_ollama: bool,
                                 )
                                 await ws.send(result_msg.model_dump_json())
                                 log.info(f"Task complete  id={task_id}  tokens={tokens_used}")
+                                if warmth.task_finished(time.time()) and warmth.can_unload:
+                                    await send_warmth()
 
                             except Exception as e:
                                 log.error(f"Inference error  id={task_id}  err={e}")
@@ -361,6 +443,9 @@ def parse_args():
     parser.add_argument("--auto", action="store_true", help="Auto-detect installed Ollama models and advertise them")
     parser.add_argument("--wallet", default=os.getenv("DAI_WALLET"), help="EVM wallet address for on-chain rewards (optional in mock mode)")
     parser.add_argument("--project", default=os.getenv("DAI_PROJECT"), help="Dedicate this node to a specific project (only receives tasks tagged with this project)")
+    parser.add_argument("--sleep-after", type=float, default=None, metavar="MINUTES",
+                        help="Unload the model after this many idle minutes to give the GPU back "
+                             "(Ollama); the node stays connected and reloads it for the next task")
     parser.add_argument("--no-warmup", action="store_true",
                         help="Don't load the model before joining or keep it loaded while idle (Ollama unloads idle models after 5 minutes)")
     return parser.parse_args()
@@ -421,6 +506,7 @@ if __name__ == "__main__":
             ollama_url=ollama_url,
             available_models=available_models,
             warm=warm,
+            sleep_after=args.sleep_after * 60 if args.sleep_after else None,
         )
 
     try:

@@ -120,6 +120,10 @@ _settle_interval = 3600
 # CPU nodes or large models. GPU nodes typically finish well under 60s.
 _task_timeout = 60.0
 
+# Extra time given to a node that reports its model is not loaded (a sleeping
+# node, see compute/node.py --sleep-after). A cold 14B load took 72-75 s.
+_cold_start_allowance = 240.0
+
 # Optional API key — None means open access (fine for local dev)
 _api_key: Optional[str] = None
 _bearer = HTTPBearer(auto_error=False)
@@ -222,6 +226,12 @@ def score_node(node: NodeConnection, model: str, project: Optional[str] = None) 
     if project is not None and node_project == project:
         score += 5
 
+    # A sleeping node (model unloaded) answers only after a load of a minute or
+    # more; prefer any warm node, and let sleeping ones keep the GPU for their
+    # owner unless nobody else can serve the request.
+    if node.info.warm:
+        score += 10
+
     # Hardware (gpu / vram_gb) intentionally not scored — self-reported and
     # unverified. See module docstring and docs/VERIFICATION.md build-now #3.
 
@@ -313,6 +323,13 @@ async def node_endpoint(ws: WebSocket):
             if msg.type == "heartbeat":
                 nodes[node_id].last_seen = time.time()
 
+            elif msg.type == "status":
+                # A node going to sleep (model unloaded) or waking up.
+                warm = bool(msg.payload.get("warm", True))
+                if warm != nodes[node_id].info.warm:
+                    nodes[node_id].info.warm = warm
+                    log.info(f"Node {'warm ' if warm else 'asleep'}  id={node_id}")
+
             elif msg.type == "task_complete":
                 result = TaskResult(**msg.payload)
 
@@ -402,10 +419,12 @@ async def _dispatch_and_wait(
         }
     }
     await node.ws.send_text(json.dumps(dispatch_msg))
-    log.info(f"Dispatched   id={task.task_id}  to={node.info.node_id}  score={score}  reason={reason}")
+    timeout = _task_timeout if node.info.warm else _task_timeout + _cold_start_allowance
+    log.info(f"Dispatched   id={task.task_id}  to={node.info.node_id}  score={score}  reason={reason}"
+             + ("" if node.info.warm else f"  (asleep: allowing {timeout:.0f}s to load)"))
 
     try:
-        await asyncio.wait_for(event.wait(), timeout=_task_timeout)
+        await asyncio.wait_for(event.wait(), timeout=timeout)
     except asyncio.TimeoutError:
         pending_events.pop(task.task_id, None)
         node.status = NodeStatus.idle
@@ -489,8 +508,9 @@ async def _ask_committee_member(node: NodeConnection, task: Task) -> Optional[Ta
         pending_events.pop(task.task_id, None)
         node.status = NodeStatus.idle
         return None
+    timeout = _committee_timeout if node.info.warm else _committee_timeout + _cold_start_allowance
     try:
-        await asyncio.wait_for(event.wait(), timeout=_committee_timeout)
+        await asyncio.wait_for(event.wait(), timeout=timeout)
     except asyncio.TimeoutError:
         pending_events.pop(task.task_id, None)
         node.status = NodeStatus.idle
@@ -788,6 +808,7 @@ def network_status():
                 "gpu": n.info.gpu,
                 "vram_gb": n.info.vram_gb,
                 "status": n.status.value,
+                "warm": n.info.warm,
                 "tasks_completed": n.tasks_completed,
                 "balance": ledger.balance(n.info.node_id),
                 "score": score_node(n, n.info.models[0]) if n.status == NodeStatus.idle else "busy",
@@ -965,6 +986,10 @@ if __name__ == "__main__":
                         help="Seconds between reward-settlement epochs (publish a "
                              "cumulative Merkle root). Chain mode only. Default 3600.")
 
+    parser.add_argument("--cold-start-allowance", type=float,
+                        default=float(os.getenv("DAI_COLD_START_ALLOWANCE", "240")),
+                        help="Extra seconds given to a node whose model is unloaded "
+                             "(a sleeping node) to load it (default 240).")
     parser.add_argument("--task-timeout", type=float,
                         default=float(os.getenv("DAI_TASK_TIMEOUT", "60")),
                         help="Seconds to wait for a node to return a result before "
@@ -1028,7 +1053,8 @@ if __name__ == "__main__":
         log.info("Running in open-access mode (no API key required)")
 
     _task_timeout = args.task_timeout
-    log.info(f"Task timeout: {_task_timeout}s")
+    _cold_start_allowance = args.cold_start_allowance
+    log.info(f"Task timeout: {_task_timeout}s  (+{_cold_start_allowance:.0f}s for a sleeping node)")
 
     verifier = make_verifier(
         args.verify_sample_rate,

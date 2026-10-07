@@ -8,9 +8,9 @@ from types import SimpleNamespace
 import orchestrator
 
 
-def _node(models, gpu=False, vram_gb=None, last_task_time=0.0, project=None):
+def _node(models, gpu=False, vram_gb=None, last_task_time=0.0, project=None, warm=True):
     return SimpleNamespace(
-        info=SimpleNamespace(models=models, gpu=gpu, vram_gb=vram_gb, project=project),
+        info=SimpleNamespace(models=models, gpu=gpu, vram_gb=vram_gb, project=project, warm=warm),
         last_task_time=last_task_time,
     )
 
@@ -66,3 +66,22 @@ def test_dedicated_node_scores_higher_than_general_for_its_project():
     general   = _node(["any"], project=None,   last_task_time=0.0)
     assert orchestrator.score_node(dedicated, "any", project="acme") > \
            orchestrator.score_node(general,   "any", project="acme")
+
+
+# ── Sleeping nodes ────────────────────────────────────────────────────────────
+
+def test_warm_node_preferred_over_sleeping_one():
+    warm = _node(["llama3"], last_task_time=0.0)
+    asleep = _node(["llama3"], last_task_time=0.0, warm=False)
+    assert orchestrator.score_node(warm, "llama3") > orchestrator.score_node(asleep, "llama3")
+
+
+def test_sleeping_node_still_eligible():
+    assert orchestrator.score_node(_node(["llama3"], warm=False), "llama3") >= 0
+
+
+def test_exact_model_match_outweighs_warmth():
+    """A sleeping node with the exact model still beats a warm 'any' node."""
+    exact_asleep = _node(["llama3"], warm=False)
+    generic_warm = _node(["any"])
+    assert orchestrator.score_node(exact_asleep, "llama3") > orchestrator.score_node(generic_warm, "llama3")
