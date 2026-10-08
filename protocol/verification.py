@@ -146,7 +146,7 @@ class RedundantExecutionVerifier(Verifier):
     def __init__(
         self,
         sample_rate: float,
-        agreement_threshold: float = 0.85,
+        agreement_threshold: float = 0.75,
         comparator: Optional[Callable[[str, str], float]] = None,
         rng: Optional[random.Random] = None,
     ):
@@ -212,7 +212,7 @@ class RedundantExecutionVerifier(Verifier):
             escalation_required=True,
             detail=(
                 f"agreement {score:.3f} < {self.agreement_threshold:.3f}; "
-                "committee escalation required (not yet implemented)"
+                "committee escalation follows"
             ),
         )
 
@@ -313,7 +313,7 @@ class EmbeddingComparator:
 
 def make_verifier(
     sample_rate: float,
-    agreement_threshold: float = 0.85,
+    agreement_threshold: float = 0.75,
     embedding_url: Optional[str] = None,
     embedding_model: str = "nomic-embed-text",
 ) -> Verifier:

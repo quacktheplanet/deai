@@ -255,7 +255,7 @@ problem, as ECONOMICS.md §4–§5 state.
 | Parameter | Meaning | Status | Set where |
 |---|---|---|---|
 | `p` | per-task recheck probability | bootstrap default `0.0`; target `>0` & conditioned | `--verify-sample-rate` / env |
-| `agreement_threshold` | accept iff similarity ≥ this | bootstrap default `0.85`; final value empirical | `--verify-threshold` / env |
+| `agreement_threshold` | accept iff similarity ≥ this | bootstrap default `0.75` (was 0.85: 2.2% honest false mismatches across GPU/CPU/split hardware, 0 at 0.75 — CROSS_HARDWARE_RESULTS.md); final value empirical | `--verify-threshold` / env |
 | comparison method | how two outputs are compared | **decided**: semantic embedding cosine; threshold empirical | `--embedding-url` / `DAI_EMBEDDING_URL`; when unavailable: sequence ratio may confirm a match, otherwise `FINALIZED*` (never a mismatch) |
 | reference stack / model | pinned runtime+quant+decode+seed | **deferred** (no registry yet) | future model registry |
 | committee size `N`, quorum | adjudication panel | **deferred** | unbuilt |
@@ -298,7 +298,12 @@ What `protocol/{verification,orchestrator,ledger,chain_ledger,merkle,model_regis
   excluding primary+checker (uniformly at random per §13.2), dispatches the
   same task in parallel under `_committee_timeout`, tallies votes per §13.4,
   and on a `CHECKER_UPHELD` / `PRIMARY_UPHELD` verdict schedules a delayed
-  slash via `_schedule_slash` (appeal window per §13.6). The slash reduces
+  slash via `_schedule_slash` (appeal window per §13.6). On `CHECKER_UPHELD`
+  the requester gets the checker's committee-confirmed answer (not an error)
+  and the checker is paid for it. Both sides of a dispute are held out of
+  routing while it is decided, and the side found dishonest gets no work for
+  `--quarantine` seconds (default 3600) — before this, the caught node was
+  idle longest and drew the next request. The slash reduces
   the in-memory bond and — in chain mode — the off-chain `_accrued_wei`
   bond and calls `SlashingContract.slash`. ❌ still deferred (§13.9): the
   appeal *mechanism* itself (the window is currently a time-lock only),

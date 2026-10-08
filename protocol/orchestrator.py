@@ -140,6 +140,10 @@ class NodeConnection:
         self.last_task_time: float = 0.0  # for round-robin tiebreaking
         self.tasks_completed = 0
         self.current_task_id: Optional[str] = None
+        # Skipped by routing until then: held while a dispute it is part of is
+        # being decided, and for --quarantine seconds after a committee finds
+        # it dishonest (otherwise, being idle longest, it drew the next request).
+        self.quarantined_until: float = 0.0
 
 
 # node_id → NodeConnection
@@ -182,6 +186,11 @@ _committee_size: int = DEFAULT_COMMITTEE_SIZE
 _committee_timeout: float = DEFAULT_COMMITTEE_TIMEOUT_S
 _appeal_window: float = DEFAULT_APPEAL_WINDOW_S
 _slash_fraction: float = DEFAULT_SLASH_FRACTION
+_quarantine_seconds: float = 3600.0
+
+
+def quarantined(node: NodeConnection) -> bool:
+    return time.time() < getattr(node, "quarantined_until", 0.0)
 
 
 # ── Routing ───────────────────────────────────────────────────────────────────
@@ -251,6 +260,8 @@ def find_best_node(
         if node.status != NodeStatus.idle:
             continue
         if node.info.node_id in exclude:
+            continue
+        if quarantined(node):
             continue
         if chain_ledger is not None and node.info.wallet:
             if not chain_ledger.is_eligible(node.info.wallet):
@@ -448,6 +459,8 @@ def _select_committee_nodes(
         if node.status != NodeStatus.idle:
             continue
         if node.info.node_id in exclude_ids:
+            continue
+        if quarantined(node):
             continue
         if chain_ledger is not None and node.info.wallet:
             if not chain_ledger.is_eligible(node.info.wallet):
@@ -677,11 +690,18 @@ async def chat_completions(req: ChatRequest, response: Response, _auth=Depends(_
                 # confirmed dishonest verdict schedule a delayed slash. A
                 # 2-sample mismatch never auto-slashes — false-positive
                 # slashing of an honest provider is flagged existential.
+                # Neither side takes new work while the dispute is decided.
+                hold = time.time() + _committee_timeout + 5
+                for n in (primary_node, n2):
+                    n.quarantined_until = max(n.quarantined_until, hold)
                 committee_outcome = await _convene_committee(
                     task, primary, r2, primary_node, n2,
                     effective_verifier._comparator,
                     effective_verifier.agreement_threshold,
                 )
+                for n in (primary_node, n2):
+                    if n.quarantined_until == hold:
+                        n.quarantined_until = 0.0
                 if committee_outcome is None:
                     # §13.3 fallback: insufficient committee → FINALIZED*.
                     log.warning(
@@ -698,6 +718,7 @@ async def chat_completions(req: ChatRequest, response: Response, _auth=Depends(_
                         f"committee verdict CHECKER dishonest on task {task.task_id}",
                         _appeal_window,
                     ))
+                    n2.quarantined_until = time.time() + _quarantine_seconds
                     verification = "verified"
                     # primary wins → fall through to accrual.
                 elif committee_outcome.verdict is Verdict.CHECKER_UPHELD:
@@ -710,14 +731,11 @@ async def chat_completions(req: ChatRequest, response: Response, _auth=Depends(_
                         f"committee verdict PRIMARY dishonest on task {task.task_id}",
                         _appeal_window,
                     ))
-                    stats["failed"] += 1
-                    raise HTTPException(
-                        status_code=502,
-                        detail=(
-                            f"Committee upheld checker; primary result rejected "
-                            f"({committee_outcome.detail})"
-                        ),
-                    )
+                    primary_node.quarantined_until = time.time() + _quarantine_seconds
+                    # The committee confirmed the checker's answer: that is the
+                    # answer the requester gets, and the checker is paid for it.
+                    primary, primary_node = r2, n2
+                    verification = "verified"
                 else:  # UNRESOLVABLE — tie or no majority. No slash, no pay.
                     log.warning(
                         f"COMMITTEE  id={task.task_id}  verdict=UNRESOLVABLE "
@@ -978,9 +996,10 @@ if __name__ == "__main__":
                              "node for redundant verification. 0 = legacy non-empty "
                              "check only, no rechecks (default).")
     parser.add_argument("--verify-threshold", type=float,
-                        default=float(os.getenv("DAI_VERIFY_THRESHOLD", "0.85")),
+                        default=float(os.getenv("DAI_VERIFY_THRESHOLD", "0.75")),
                         help="Agreement threshold [0..1] for redundant verification "
-                             "(default 0.85). Only used when --verify-sample-rate > 0.")
+                             "(default 0.75: no honest false mismatch across GPU/CPU/split hardware in "
+                             "docs/CROSS_HARDWARE_RESULTS.md). Only used when --verify-sample-rate > 0.")
     parser.add_argument("--embedding-url",
                         default=os.getenv("DAI_EMBEDDING_URL"),
                         help="Base URL of an OpenAI-compatible embedding endpoint for "
@@ -1010,6 +1029,10 @@ if __name__ == "__main__":
                         default=float(os.getenv("DAI_APPEAL_WINDOW", str(DEFAULT_APPEAL_WINDOW_S))),
                         help=f"Seconds between a dishonest verdict and the slash "
                              f"firing (default {DEFAULT_APPEAL_WINDOW_S}). 0 = immediate.")
+    parser.add_argument("--quarantine", type=float,
+                        default=float(os.getenv("DAI_QUARANTINE", "3600")),
+                        help="Seconds a node found dishonest by a committee gets no work "
+                             "(default 3600).")
     parser.add_argument("--slash-fraction", type=float,
                         default=float(os.getenv("DAI_SLASH_FRACTION", str(DEFAULT_SLASH_FRACTION))),
                         help=f"Fraction of unvested bond burned on a verified "
@@ -1064,6 +1087,7 @@ if __name__ == "__main__":
     _committee_timeout = args.committee_timeout
     _appeal_window = args.appeal_window
     _slash_fraction = args.slash_fraction
+    _quarantine_seconds = args.quarantine
     log.info(
         f"Committee escalation: size={_committee_size} "
         f"timeout={_committee_timeout:.0f}s "
