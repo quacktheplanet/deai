@@ -1,0 +1,2312 @@
+[
+ {
+  "kind": "repeat",
+  "label": "gpu capital of France run0/run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu capital of France run0/run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu capital of France run0/run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu capital of France run0",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu capital of France run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu capital of France run0",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu capital of France run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu capital of France run0",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu capital of France run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small capital of France",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "swapped",
+  "label": "capital of France vs answer to 7 \u00d7 8",
+  "identical": false,
+  "embedding": 0.32994704152686755,
+  "sequence": 0.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu 7 \u00d7 8 run0/run1",
+  "identical": true,
+  "embedding": 0.9999999999999991,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu 7 \u00d7 8 run0/run1",
+  "identical": true,
+  "embedding": 0.9999999999999991,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu 7 \u00d7 8 run0/run1",
+  "identical": true,
+  "embedding": 0.9999999999999991,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu 7 \u00d7 8 run0",
+  "identical": true,
+  "embedding": 0.9999999999999991,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu 7 \u00d7 8 run1",
+  "identical": true,
+  "embedding": 0.9999999999999991,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu 7 \u00d7 8 run0",
+  "identical": true,
+  "embedding": 0.9999999999999991,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu 7 \u00d7 8 run1",
+  "identical": true,
+  "embedding": 0.9999999999999991,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu 7 \u00d7 8 run0",
+  "identical": true,
+  "embedding": 0.9999999999999991,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu 7 \u00d7 8 run1",
+  "identical": true,
+  "embedding": 0.9999999999999991,
+  "sequence": 1.0
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small 7 \u00d7 8",
+  "identical": false,
+  "embedding": 0.623657048992481,
+  "sequence": 0.5
+ },
+ {
+  "kind": "swapped",
+  "label": "7 \u00d7 8 vs answer to WW2 end year",
+  "identical": false,
+  "embedding": 0.45214957796521427,
+  "sequence": 0.3333333333333333
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu WW2 end year run0/run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu WW2 end year run0/run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu WW2 end year run0/run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu WW2 end year run0",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu WW2 end year run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu WW2 end year run0",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu WW2 end year run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu WW2 end year run0",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu WW2 end year run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small WW2 end year",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "swapped",
+  "label": "WW2 end year vs answer to boiling point water",
+  "identical": false,
+  "embedding": 0.2737144294092592,
+  "sequence": 0.2857142857142857
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu boiling point water run0/run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu boiling point water run0/run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu boiling point water run0/run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu boiling point water run0",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu boiling point water run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu boiling point water run0",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu boiling point water run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu boiling point water run0",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu boiling point water run1",
+  "identical": true,
+  "embedding": 0.9999999999999989,
+  "sequence": 1.0
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small boiling point water",
+  "identical": false,
+  "embedding": 0.7720862263083321,
+  "sequence": 0.42857142857142855
+ },
+ {
+  "kind": "swapped",
+  "label": "boiling point water vs answer to speed of light unit",
+  "identical": false,
+  "embedding": 0.45524408936590494,
+  "sequence": 0.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu speed of light unit run0/run1",
+  "identical": true,
+  "embedding": 0.9999998486387252,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu speed of light unit run0/run1",
+  "identical": true,
+  "embedding": 0.9999998486387252,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu speed of light unit run0/run1",
+  "identical": true,
+  "embedding": 0.9999998486387252,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu speed of light unit run0",
+  "identical": true,
+  "embedding": 0.9999998486387252,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu speed of light unit run1",
+  "identical": true,
+  "embedding": 0.9999998486387252,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu speed of light unit run0",
+  "identical": true,
+  "embedding": 0.9999998486387252,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu speed of light unit run1",
+  "identical": true,
+  "embedding": 0.9999998486387252,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu speed of light unit run0",
+  "identical": true,
+  "embedding": 0.9999998486387252,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu speed of light unit run1",
+  "identical": true,
+  "embedding": 0.9999998486387252,
+  "sequence": 1.0
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small speed of light unit",
+  "identical": false,
+  "embedding": 0.8134167533529658,
+  "sequence": 0.4927536231884058
+ },
+ {
+  "kind": "swapped",
+  "label": "speed of light unit vs answer to TCP handshake",
+  "identical": false,
+  "embedding": 0.3966709961437576,
+  "sequence": 0.006006006006006006
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu TCP handshake run0/run1",
+  "identical": false,
+  "embedding": 0.9844589073248047,
+  "sequence": 0.7037037037037037
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu TCP handshake run0/run1",
+  "identical": true,
+  "embedding": 0.999998461471422,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu TCP handshake run0/run1",
+  "identical": true,
+  "embedding": 0.999998461471422,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu TCP handshake run0",
+  "identical": true,
+  "embedding": 0.999998461471422,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu TCP handshake run1",
+  "identical": false,
+  "embedding": 0.9844589073248047,
+  "sequence": 0.6430976430976431
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu TCP handshake run0",
+  "identical": true,
+  "embedding": 0.999998461471422,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu TCP handshake run1",
+  "identical": false,
+  "embedding": 0.9844186420161075,
+  "sequence": 0.6430976430976431
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu TCP handshake run0",
+  "identical": true,
+  "embedding": 0.999998461471422,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu TCP handshake run1",
+  "identical": true,
+  "embedding": 0.999998461471422,
+  "sequence": 1.0
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small TCP handshake",
+  "identical": false,
+  "embedding": 0.9623295720533537,
+  "sequence": 0.13676371022342587
+ },
+ {
+  "kind": "swapped",
+  "label": "TCP handshake vs answer to list vs tuple",
+  "identical": false,
+  "embedding": 0.4170916289222843,
+  "sequence": 0.015527950310559006
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu list vs tuple run0/run1",
+  "identical": true,
+  "embedding": 0.9999983718553683,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu list vs tuple run0/run1",
+  "identical": true,
+  "embedding": 0.9999983425495415,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu list vs tuple run0/run1",
+  "identical": false,
+  "embedding": 0.9742181298009664,
+  "sequence": 0.34782608695652173
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu list vs tuple run0",
+  "identical": false,
+  "embedding": 0.9858334587413288,
+  "sequence": 0.6699507389162561
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu list vs tuple run1",
+  "identical": false,
+  "embedding": 0.9858654047155209,
+  "sequence": 0.6699507389162561
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu list vs tuple run0",
+  "identical": false,
+  "embedding": 0.9791556484806847,
+  "sequence": 0.2803149606299213
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu list vs tuple run1",
+  "identical": false,
+  "embedding": 0.9677144118144059,
+  "sequence": 0.22338568935427575
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu list vs tuple run0",
+  "identical": false,
+  "embedding": 0.9801041561349014,
+  "sequence": 0.20748299319727892
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu list vs tuple run1",
+  "identical": false,
+  "embedding": 0.9625737492743672,
+  "sequence": 0.23574144486692014
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small list vs tuple",
+  "identical": false,
+  "embedding": 0.9019181170760369,
+  "sequence": 0.05801526717557252
+ },
+ {
+  "kind": "swapped",
+  "label": "list vs tuple vs answer to HTTPS encryption",
+  "identical": false,
+  "embedding": 0.41194917847906115,
+  "sequence": 0.02435723951285521
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu HTTPS encryption run0/run1",
+  "identical": true,
+  "embedding": 0.9999982530470979,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu HTTPS encryption run0/run1",
+  "identical": true,
+  "embedding": 0.9999987626378888,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu HTTPS encryption run0/run1",
+  "identical": false,
+  "embedding": 0.9986282353713752,
+  "sequence": 0.9725420726306466
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu HTTPS encryption run0",
+  "identical": false,
+  "embedding": 0.9813033755943931,
+  "sequence": 0.38786565547128926
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu HTTPS encryption run1",
+  "identical": false,
+  "embedding": 0.9813033755943931,
+  "sequence": 0.38786565547128926
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu HTTPS encryption run0",
+  "identical": false,
+  "embedding": 0.9868292627078932,
+  "sequence": 0.3826266804550155
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu HTTPS encryption run1",
+  "identical": false,
+  "embedding": 0.9860635990965951,
+  "sequence": 0.37601626016260165
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu HTTPS encryption run0",
+  "identical": false,
+  "embedding": 0.9887984631843864,
+  "sequence": 0.15543071161048688
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu HTTPS encryption run1",
+  "identical": false,
+  "embedding": 0.9899577642237037,
+  "sequence": 0.8221198156682028
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small HTTPS encryption",
+  "identical": false,
+  "embedding": 0.95349564535291,
+  "sequence": 0.10284664830119375
+ },
+ {
+  "kind": "swapped",
+  "label": "HTTPS encryption vs answer to RAM vs storage",
+  "identical": false,
+  "embedding": 0.46114905982726795,
+  "sequence": 0.0365296803652968
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu RAM vs storage run0/run1",
+  "identical": true,
+  "embedding": 0.9999985838651754,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu RAM vs storage run0/run1",
+  "identical": true,
+  "embedding": 0.9999986780812388,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu RAM vs storage run0/run1",
+  "identical": false,
+  "embedding": 0.9992654165184964,
+  "sequence": 0.9471624266144814
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu RAM vs storage run0",
+  "identical": false,
+  "embedding": 0.9992654165184964,
+  "sequence": 0.9471624266144814
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu RAM vs storage run1",
+  "identical": false,
+  "embedding": 0.9992654165184964,
+  "sequence": 0.9471624266144814
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu RAM vs storage run0",
+  "identical": true,
+  "embedding": 0.9999985838651754,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu RAM vs storage run1",
+  "identical": false,
+  "embedding": 0.9992654165184964,
+  "sequence": 0.9471624266144814
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu RAM vs storage run0",
+  "identical": false,
+  "embedding": 0.9992654165184964,
+  "sequence": 0.9471624266144814
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu RAM vs storage run1",
+  "identical": true,
+  "embedding": 0.9999986780812388,
+  "sequence": 1.0
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small RAM vs storage",
+  "identical": false,
+  "embedding": 0.9362917150992321,
+  "sequence": 0.1955403087478559
+ },
+ {
+  "kind": "swapped",
+  "label": "RAM vs storage vs answer to git rebase vs merge",
+  "identical": false,
+  "embedding": 0.44291571577434796,
+  "sequence": 0.02591792656587473
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu git rebase vs merge run0/run1",
+  "identical": true,
+  "embedding": 0.9999979233324643,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu git rebase vs merge run0/run1",
+  "identical": true,
+  "embedding": 0.9999984920185798,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu git rebase vs merge run0/run1",
+  "identical": false,
+  "embedding": 0.9750711980709156,
+  "sequence": 0.18789144050104384
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu git rebase vs merge run0",
+  "identical": false,
+  "embedding": 0.9750678322605878,
+  "sequence": 0.2964509394572025
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu git rebase vs merge run1",
+  "identical": false,
+  "embedding": 0.9750678322605878,
+  "sequence": 0.2964509394572025
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu git rebase vs merge run0",
+  "identical": false,
+  "embedding": 0.9750711980709156,
+  "sequence": 0.2964509394572025
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu git rebase vs merge run1",
+  "identical": true,
+  "embedding": 0.9999979233324643,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu git rebase vs merge run0",
+  "identical": true,
+  "embedding": 0.9999984920185798,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu git rebase vs merge run1",
+  "identical": false,
+  "embedding": 0.9750678322605878,
+  "sequence": 0.18789144050104384
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small git rebase vs merge",
+  "identical": false,
+  "embedding": 0.9244977509739618,
+  "sequence": 0.02671118530884808
+ },
+ {
+  "kind": "swapped",
+  "label": "git rebase vs merge vs answer to robot story",
+  "identical": false,
+  "embedding": 0.4455100110549887,
+  "sequence": 0.012944983818770227
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu robot story run0/run1",
+  "identical": true,
+  "embedding": 0.9999986913240839,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu robot story run0/run1",
+  "identical": true,
+  "embedding": 0.9999978778299381,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu robot story run0/run1",
+  "identical": false,
+  "embedding": 0.9475496123116237,
+  "sequence": 0.4861111111111111
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu robot story run0",
+  "identical": false,
+  "embedding": 0.9259909487147722,
+  "sequence": 0.3462532299741602
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu robot story run1",
+  "identical": false,
+  "embedding": 0.926000442980622,
+  "sequence": 0.3462532299741602
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu robot story run0",
+  "identical": false,
+  "embedding": 0.8034082083039595,
+  "sequence": 0.1433778857837181
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu robot story run1",
+  "identical": false,
+  "embedding": 0.7896081866945037,
+  "sequence": 0.11387900355871886
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu robot story run0",
+  "identical": false,
+  "embedding": 0.8331105980591014,
+  "sequence": 0.2641509433962264
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu robot story run1",
+  "identical": false,
+  "embedding": 0.7971543530068615,
+  "sequence": 0.21104294478527608
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small robot story",
+  "identical": false,
+  "embedding": 0.8032192751157294,
+  "sequence": 0.04040404040404041
+ },
+ {
+  "kind": "swapped",
+  "label": "robot story vs answer to meaning of life",
+  "identical": false,
+  "embedding": 0.41548615468233824,
+  "sequence": 0.023026315789473683
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu meaning of life run0/run1",
+  "identical": true,
+  "embedding": 0.9999984373451578,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu meaning of life run0/run1",
+  "identical": true,
+  "embedding": 0.9999984373451578,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu meaning of life run0/run1",
+  "identical": true,
+  "embedding": 0.9999984373451578,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu meaning of life run0",
+  "identical": true,
+  "embedding": 0.9999984373451578,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu meaning of life run1",
+  "identical": true,
+  "embedding": 0.9999984373451578,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu meaning of life run0",
+  "identical": true,
+  "embedding": 0.9999984373451578,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu meaning of life run1",
+  "identical": true,
+  "embedding": 0.9999984373451578,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu meaning of life run0",
+  "identical": true,
+  "embedding": 0.9999984373451578,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu meaning of life run1",
+  "identical": true,
+  "embedding": 0.9999984373451578,
+  "sequence": 1.0
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small meaning of life",
+  "identical": false,
+  "embedding": 0.9625974517010486,
+  "sequence": 0.16029143897996356
+ },
+ {
+  "kind": "swapped",
+  "label": "meaning of life vs answer to productivity tips",
+  "identical": false,
+  "embedding": 0.37971872259392414,
+  "sequence": 0.19047619047619047
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu productivity tips run0/run1",
+  "identical": false,
+  "embedding": 0.9098212734122776,
+  "sequence": 0.18225419664268586
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu productivity tips run0/run1",
+  "identical": true,
+  "embedding": 0.9999983683240237,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu productivity tips run0/run1",
+  "identical": false,
+  "embedding": 0.8442898808566341,
+  "sequence": 0.42409638554216866
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu productivity tips run0",
+  "identical": false,
+  "embedding": 0.9929770697252609,
+  "sequence": 0.9921259842519685
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu productivity tips run1",
+  "identical": false,
+  "embedding": 0.9080255918539559,
+  "sequence": 0.42995169082125606
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu productivity tips run0",
+  "identical": false,
+  "embedding": 0.9099601184015973,
+  "sequence": 0.18225419664268586
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu productivity tips run1",
+  "identical": false,
+  "embedding": 0.8442898808566341,
+  "sequence": 0.42409638554216866
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu productivity tips run0",
+  "identical": false,
+  "embedding": 0.9080255918539559,
+  "sequence": 0.18840579710144928
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu productivity tips run1",
+  "identical": false,
+  "embedding": 0.9458742126412863,
+  "sequence": 0.9709762532981531
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small productivity tips",
+  "identical": false,
+  "embedding": 0.8902374298993637,
+  "sequence": 0.02168021680216802
+ },
+ {
+  "kind": "swapped",
+  "label": "productivity tips vs answer to describe blue",
+  "identical": false,
+  "embedding": 0.46363024840393274,
+  "sequence": 0.2597402597402597
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu describe blue run0/run1",
+  "identical": true,
+  "embedding": 0.9999976828287372,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu describe blue run0/run1",
+  "identical": true,
+  "embedding": 0.9999976828287372,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu describe blue run0/run1",
+  "identical": false,
+  "embedding": 0.9723050860708455,
+  "sequence": 0.7355371900826446
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu describe blue run0",
+  "identical": true,
+  "embedding": 0.9999976828287372,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu describe blue run1",
+  "identical": true,
+  "embedding": 0.9999976828287372,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu describe blue run0",
+  "identical": false,
+  "embedding": 0.9723050860708455,
+  "sequence": 0.7355371900826446
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu describe blue run1",
+  "identical": true,
+  "embedding": 0.9999976828287372,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu describe blue run0",
+  "identical": false,
+  "embedding": 0.9723050860708455,
+  "sequence": 0.7355371900826446
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu describe blue run1",
+  "identical": true,
+  "embedding": 0.9999976828287372,
+  "sequence": 1.0
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small describe blue",
+  "identical": false,
+  "embedding": 0.8990544103114114,
+  "sequence": 0.2138364779874214
+ },
+ {
+  "kind": "swapped",
+  "label": "describe blue vs answer to haiku about Python",
+  "identical": false,
+  "embedding": 0.3983464227025573,
+  "sequence": 0.13043478260869565
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu haiku about Python run0/run1",
+  "identical": false,
+  "embedding": 0.9226999712773827,
+  "sequence": 0.8270676691729323
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu haiku about Python run0/run1",
+  "identical": true,
+  "embedding": 0.9999983137976829,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu haiku about Python run0/run1",
+  "identical": true,
+  "embedding": 1.0,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu haiku about Python run0",
+  "identical": false,
+  "embedding": 0.9225478446932389,
+  "sequence": 0.8270676691729323
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu haiku about Python run1",
+  "identical": true,
+  "embedding": 0.9999983137976829,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu haiku about Python run0",
+  "identical": true,
+  "embedding": 1.0,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu haiku about Python run1",
+  "identical": false,
+  "embedding": 0.9225478446932389,
+  "sequence": 0.8270676691729323
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu haiku about Python run0",
+  "identical": false,
+  "embedding": 0.9226999712773827,
+  "sequence": 0.8270676691729323
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu haiku about Python run1",
+  "identical": false,
+  "embedding": 0.9226999712773827,
+  "sequence": 0.8270676691729323
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small haiku about Python",
+  "identical": false,
+  "embedding": 0.6893589057459242,
+  "sequence": 0.28169014084507044
+ },
+ {
+  "kind": "swapped",
+  "label": "haiku about Python vs answer to photosynthesis",
+  "identical": false,
+  "embedding": 0.4427842674542443,
+  "sequence": 0.011204481792717087
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu photosynthesis run0/run1",
+  "identical": false,
+  "embedding": 0.9616474660439872,
+  "sequence": 0.45063694267515925
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu photosynthesis run0/run1",
+  "identical": true,
+  "embedding": 0.9999993824328931,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu photosynthesis run0/run1",
+  "identical": false,
+  "embedding": 0.9865088709153198,
+  "sequence": 0.18515797207935342
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu photosynthesis run0",
+  "identical": false,
+  "embedding": 0.9934371660652016,
+  "sequence": 0.7652685798381162
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu photosynthesis run1",
+  "identical": false,
+  "embedding": 0.9662010975538698,
+  "sequence": 0.2796812749003984
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu photosynthesis run0",
+  "identical": false,
+  "embedding": 0.9902054523189406,
+  "sequence": 0.5837037037037037
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu photosynthesis run1",
+  "identical": false,
+  "embedding": 0.967301276590407,
+  "sequence": 0.13496448303078137
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu photosynthesis run0",
+  "identical": false,
+  "embedding": 0.9937120410604846,
+  "sequence": 0.6960711638250556
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu photosynthesis run1",
+  "identical": false,
+  "embedding": 0.9828978248283324,
+  "sequence": 0.14963503649635038
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small photosynthesis",
+  "identical": false,
+  "embedding": 0.875807471585937,
+  "sequence": 0.014351614556637622
+ },
+ {
+  "kind": "swapped",
+  "label": "photosynthesis vs answer to french revolution",
+  "identical": false,
+  "embedding": 0.4663264084178075,
+  "sequence": 0.007815275310834813
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu french revolution run0/run1",
+  "identical": false,
+  "embedding": 0.9843881606318782,
+  "sequence": 0.19044196909809558
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu french revolution run0/run1",
+  "identical": true,
+  "embedding": 0.9999989104253495,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu french revolution run0/run1",
+  "identical": false,
+  "embedding": 0.9965128000866854,
+  "sequence": 0.7283998450213096
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu french revolution run0",
+  "identical": false,
+  "embedding": 0.9718177238229093,
+  "sequence": 0.20918367346938777
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu french revolution run1",
+  "identical": false,
+  "embedding": 0.9712004729914209,
+  "sequence": 0.19640810087886892
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu french revolution run0",
+  "identical": false,
+  "embedding": 0.9686298984985694,
+  "sequence": 0.20739666424945613
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu french revolution run1",
+  "identical": false,
+  "embedding": 0.9724552552334438,
+  "sequence": 0.19723714504988488
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu french revolution run0",
+  "identical": false,
+  "embedding": 0.9922797697780537,
+  "sequence": 0.6882716049382716
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu french revolution run1",
+  "identical": false,
+  "embedding": 0.9936932879834631,
+  "sequence": 0.6926373198285937
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small french revolution",
+  "identical": false,
+  "embedding": 0.9381469728859717,
+  "sequence": 0.04691447130999639
+ },
+ {
+  "kind": "swapped",
+  "label": "french revolution vs answer to CAP theorem",
+  "identical": false,
+  "embedding": 0.48198299450223764,
+  "sequence": 0.021005251312828207
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu CAP theorem run0/run1",
+  "identical": false,
+  "embedding": 0.9812749041250746,
+  "sequence": 0.11227868144522815
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu CAP theorem run0/run1",
+  "identical": true,
+  "embedding": 0.9999987941802296,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu CAP theorem run0/run1",
+  "identical": false,
+  "embedding": 0.9896632216805819,
+  "sequence": 0.14746835443037976
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu CAP theorem run0",
+  "identical": false,
+  "embedding": 0.9877041617194453,
+  "sequence": 0.19997413012546889
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu CAP theorem run1",
+  "identical": false,
+  "embedding": 0.9745543913924894,
+  "sequence": 0.2336799537839399
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu CAP theorem run0",
+  "identical": false,
+  "embedding": 0.9813204431906236,
+  "sequence": 0.1402050429481851
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu CAP theorem run1",
+  "identical": false,
+  "embedding": 0.9960385238825985,
+  "sequence": 0.34815672011902793
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu CAP theorem run0",
+  "identical": false,
+  "embedding": 0.9713464917457536,
+  "sequence": 0.0995135510771369
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu CAP theorem run1",
+  "identical": false,
+  "embedding": 0.973093234773209,
+  "sequence": 0.16186155422215717
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small CAP theorem",
+  "identical": false,
+  "embedding": 0.9245657823121871,
+  "sequence": 0.013650885855358699
+ },
+ {
+  "kind": "swapped",
+  "label": "CAP theorem vs answer to vaccines",
+  "identical": false,
+  "embedding": 0.48355578152696777,
+  "sequence": 0.007007419620774938
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu vaccines run0/run1",
+  "identical": false,
+  "embedding": 0.990096419835864,
+  "sequence": 0.7513171759747103
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu vaccines run0/run1",
+  "identical": true,
+  "embedding": 0.999998972096929,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu vaccines run0/run1",
+  "identical": false,
+  "embedding": 0.954108598425326,
+  "sequence": 0.05517241379310345
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu vaccines run0",
+  "identical": false,
+  "embedding": 0.9630379809378903,
+  "sequence": 0.1640625
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu vaccines run1",
+  "identical": false,
+  "embedding": 0.9611447794771534,
+  "sequence": 0.16896551724137931
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu vaccines run0",
+  "identical": true,
+  "embedding": 0.999999225679676,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu vaccines run1",
+  "identical": false,
+  "embedding": 0.9517819257216233,
+  "sequence": 0.05687203791469194
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu vaccines run0",
+  "identical": false,
+  "embedding": 0.9629037207207322,
+  "sequence": 0.1484375
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu vaccines run1",
+  "identical": false,
+  "embedding": 0.9592161530634239,
+  "sequence": 0.06447534766118837
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small vaccines",
+  "identical": false,
+  "embedding": 0.926772349084483,
+  "sequence": 0.06995412844036697
+ },
+ {
+  "kind": "swapped",
+  "label": "vaccines vs answer to compound interest",
+  "identical": false,
+  "embedding": 0.44398308830506406,
+  "sequence": 0.014814814814814815
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu compound interest run0/run1",
+  "identical": false,
+  "embedding": 0.9999923899600691,
+  "sequence": 0.9984571302622879
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu compound interest run0/run1",
+  "identical": true,
+  "embedding": 0.9999990486022479,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu compound interest run0/run1",
+  "identical": false,
+  "embedding": 0.9969059864020038,
+  "sequence": 0.9382882882882883
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu compound interest run0",
+  "identical": false,
+  "embedding": 0.9998605049325928,
+  "sequence": 0.9917905480363879
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu compound interest run1",
+  "identical": false,
+  "embedding": 0.9998767168410229,
+  "sequence": 0.9933540097474524
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu compound interest run0",
+  "identical": true,
+  "embedding": 0.9999989938787752,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu compound interest run1",
+  "identical": false,
+  "embedding": 0.996852528926383,
+  "sequence": 0.9368113334832472
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu compound interest run0",
+  "identical": false,
+  "embedding": 0.9998626746136567,
+  "sequence": 0.9917905480363879
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu compound interest run1",
+  "identical": false,
+  "embedding": 0.9968062597064844,
+  "sequence": 0.9295902196060675
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small compound interest",
+  "identical": false,
+  "embedding": 0.8987879677919419,
+  "sequence": 0.03266932270916335
+ },
+ {
+  "kind": "swapped",
+  "label": "compound interest vs answer to fizzbuzz",
+  "identical": false,
+  "embedding": 0.44342927105569047,
+  "sequence": 0.034482758620689655
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu fizzbuzz run0/run1",
+  "identical": true,
+  "embedding": 0.9999977123153702,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu fizzbuzz run0/run1",
+  "identical": true,
+  "embedding": 1.0000000000000002,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu fizzbuzz run0/run1",
+  "identical": true,
+  "embedding": 1.0000000000000002,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu fizzbuzz run0",
+  "identical": false,
+  "embedding": 0.9779286970987591,
+  "sequence": 0.9012875536480687
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu fizzbuzz run1",
+  "identical": false,
+  "embedding": 0.9779286970987591,
+  "sequence": 0.9012875536480687
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu fizzbuzz run0",
+  "identical": false,
+  "embedding": 0.9779286970987591,
+  "sequence": 0.9012875536480687
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu fizzbuzz run1",
+  "identical": false,
+  "embedding": 0.9779286970987591,
+  "sequence": 0.9012875536480687
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu fizzbuzz run0",
+  "identical": true,
+  "embedding": 1.0000000000000002,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu fizzbuzz run1",
+  "identical": true,
+  "embedding": 1.0000000000000002,
+  "sequence": 1.0
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small fizzbuzz",
+  "identical": false,
+  "embedding": 0.9263595236099003,
+  "sequence": 0.5058365758754864
+ },
+ {
+  "kind": "swapped",
+  "label": "fizzbuzz vs answer to reverse list",
+  "identical": false,
+  "embedding": 0.505083962079028,
+  "sequence": 0.017421602787456445
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu reverse list run0/run1",
+  "identical": true,
+  "embedding": 0.9999977054934578,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu reverse list run0/run1",
+  "identical": true,
+  "embedding": 0.9999981688050532,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu reverse list run0/run1",
+  "identical": false,
+  "embedding": 0.9979800160923259,
+  "sequence": 0.9290465631929047
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu reverse list run0",
+  "identical": false,
+  "embedding": 0.9996329294965045,
+  "sequence": 0.9924650161463939
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu reverse list run1",
+  "identical": false,
+  "embedding": 0.9996329294965045,
+  "sequence": 0.9924650161463939
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu reverse list run0",
+  "identical": false,
+  "embedding": 0.9996329294965045,
+  "sequence": 0.9924650161463939
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu reverse list run1",
+  "identical": false,
+  "embedding": 0.9980307960921878,
+  "sequence": 0.9206703910614525
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu reverse list run0",
+  "identical": true,
+  "embedding": 0.9999981688050532,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu reverse list run1",
+  "identical": false,
+  "embedding": 0.9979730955002704,
+  "sequence": 0.9290465631929047
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small reverse list",
+  "identical": false,
+  "embedding": 0.8836548143039317,
+  "sequence": 0.12164750957854406
+ },
+ {
+  "kind": "swapped",
+  "label": "reverse list vs answer to sql top",
+  "identical": false,
+  "embedding": 0.45203368087293944,
+  "sequence": 0.0053085600530856005
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu sql top run0/run1",
+  "identical": false,
+  "embedding": 0.9989713851816904,
+  "sequence": 0.9318403115871471
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu sql top run0/run1",
+  "identical": true,
+  "embedding": 0.9999989311457987,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu sql top run0/run1",
+  "identical": false,
+  "embedding": 0.9997673942565232,
+  "sequence": 0.9471106758080313
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu sql top run0",
+  "identical": false,
+  "embedding": 0.9993732092599583,
+  "sequence": 0.9822200864968765
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu sql top run1",
+  "identical": false,
+  "embedding": 0.9995892414624965,
+  "sequence": 0.9368575624082232
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu sql top run0",
+  "identical": false,
+  "embedding": 0.999032609579237,
+  "sequence": 0.9461538461538461
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu sql top run1",
+  "identical": true,
+  "embedding": 0.9999989357481531,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu sql top run0",
+  "identical": false,
+  "embedding": 0.9996401680185151,
+  "sequence": 0.9511841469308845
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu sql top run1",
+  "identical": false,
+  "embedding": 0.9995874358624199,
+  "sequence": 0.9368575624082232
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small sql top",
+  "identical": false,
+  "embedding": 0.9676009892178878,
+  "sequence": 0.4815265935850589
+ },
+ {
+  "kind": "swapped",
+  "label": "sql top vs answer to regex email",
+  "identical": false,
+  "embedding": 0.45408173742073055,
+  "sequence": 0.0091164095371669
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu regex email run0/run1",
+  "identical": false,
+  "embedding": 0.9926033122647439,
+  "sequence": 0.614002642007926
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu regex email run0/run1",
+  "identical": true,
+  "embedding": 0.9999982878390049,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu regex email run0/run1",
+  "identical": false,
+  "embedding": 0.9958348931307622,
+  "sequence": 0.8373590982286635
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu regex email run0",
+  "identical": false,
+  "embedding": 0.982375361906395,
+  "sequence": 0.41589892076862334
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu regex email run1",
+  "identical": false,
+  "embedding": 0.9876861628077123,
+  "sequence": 0.5417925478348439
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu regex email run0",
+  "identical": false,
+  "embedding": 0.9917599043411266,
+  "sequence": 0.6215417673918883
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu regex email run1",
+  "identical": false,
+  "embedding": 0.9934238745147072,
+  "sequence": 0.7634635691657867
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu regex email run0",
+  "identical": false,
+  "embedding": 0.9872099126841574,
+  "sequence": 0.5335038363171356
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu regex email run1",
+  "identical": false,
+  "embedding": 0.9832973527038396,
+  "sequence": 0.6238821672803787
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small regex email",
+  "identical": false,
+  "embedding": 0.9227578523713957,
+  "sequence": 0.17563587684069612
+ },
+ {
+  "kind": "swapped",
+  "label": "regex email vs answer to binary search",
+  "identical": false,
+  "embedding": 0.47726895121488955,
+  "sequence": 0.022905759162303665
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu binary search run0/run1",
+  "identical": false,
+  "embedding": 0.9993678814893476,
+  "sequence": 0.9845176657403731
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu binary search run0/run1",
+  "identical": true,
+  "embedding": 0.9999987891806774,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu binary search run0/run1",
+  "identical": true,
+  "embedding": 0.9999987479300522,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu binary search run0",
+  "identical": false,
+  "embedding": 0.9993284103766843,
+  "sequence": 0.9845176657403731
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu binary search run1",
+  "identical": true,
+  "embedding": 0.9999987891806774,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu binary search run0",
+  "identical": false,
+  "embedding": 0.9989678154814291,
+  "sequence": 0.9504716981132075
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu binary search run1",
+  "identical": false,
+  "embedding": 0.9996258874365861,
+  "sequence": 0.9660554038236442
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu binary search run0",
+  "identical": false,
+  "embedding": 0.9996254294052483,
+  "sequence": 0.9660554038236442
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu binary search run1",
+  "identical": false,
+  "embedding": 0.9996258874365861,
+  "sequence": 0.9660554038236442
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small binary search",
+  "identical": false,
+  "embedding": 0.95200071597268,
+  "sequence": 0.2606867554309741
+ },
+ {
+  "kind": "swapped",
+  "label": "binary search vs answer to planets",
+  "identical": false,
+  "embedding": 0.39965182430105656,
+  "sequence": 0.09252669039145907
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu planets run0/run1",
+  "identical": true,
+  "embedding": 0.9999982642072366,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu planets run0/run1",
+  "identical": true,
+  "embedding": 0.9999982642072366,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu planets run0/run1",
+  "identical": true,
+  "embedding": 0.9999982642072366,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu planets run0",
+  "identical": true,
+  "embedding": 0.9999982642072366,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu planets run1",
+  "identical": true,
+  "embedding": 0.9999982642072366,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu planets run0",
+  "identical": true,
+  "embedding": 0.9999982642072366,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu planets run1",
+  "identical": true,
+  "embedding": 0.9999982642072366,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu planets run0",
+  "identical": true,
+  "embedding": 0.9999982642072366,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu planets run1",
+  "identical": true,
+  "embedding": 0.9999982642072366,
+  "sequence": 1.0
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small planets",
+  "identical": false,
+  "embedding": 0.8840893066845875,
+  "sequence": 0.6695278969957081
+ },
+ {
+  "kind": "swapped",
+  "label": "planets vs answer to git commands",
+  "identical": false,
+  "embedding": 0.39132278979300533,
+  "sequence": 0.04767580452920143
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu git commands run0/run1",
+  "identical": false,
+  "embedding": 0.9991132533159435,
+  "sequence": 0.9956331877729258
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu git commands run0/run1",
+  "identical": true,
+  "embedding": 0.9999981427079114,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu git commands run0/run1",
+  "identical": true,
+  "embedding": 0.9999985089693085,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu git commands run0",
+  "identical": false,
+  "embedding": 0.9967436867257714,
+  "sequence": 0.986019131714496
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu git commands run1",
+  "identical": false,
+  "embedding": 0.9975927739283237,
+  "sequence": 0.9816849816849816
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu git commands run0",
+  "identical": true,
+  "embedding": 0.9999985089693085,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu git commands run1",
+  "identical": false,
+  "embedding": 0.9991132533159435,
+  "sequence": 0.9956331877729258
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu git commands run0",
+  "identical": false,
+  "embedding": 0.9967436867257714,
+  "sequence": 0.986019131714496
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu git commands run1",
+  "identical": false,
+  "embedding": 0.9967436867257714,
+  "sequence": 0.986019131714496
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small git commands",
+  "identical": false,
+  "embedding": 0.9054873699758026,
+  "sequence": 0.1056307289393278
+ },
+ {
+  "kind": "swapped",
+  "label": "git commands vs answer to healthy breakfast",
+  "identical": false,
+  "embedding": 0.3610763590213639,
+  "sequence": 0.025547445255474453
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu healthy breakfast run0/run1",
+  "identical": false,
+  "embedding": 0.999841721584481,
+  "sequence": 0.9932397295891836
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu healthy breakfast run0/run1",
+  "identical": true,
+  "embedding": 0.9999985022760982,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu healthy breakfast run0/run1",
+  "identical": false,
+  "embedding": 0.9993278785884762,
+  "sequence": 0.9690831556503199
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu healthy breakfast run0",
+  "identical": false,
+  "embedding": 0.992736122562478,
+  "sequence": 0.4387865655471289
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu healthy breakfast run1",
+  "identical": false,
+  "embedding": 0.9930028730833373,
+  "sequence": 0.43807463493780424
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu healthy breakfast run0",
+  "identical": false,
+  "embedding": 0.9951450525039252,
+  "sequence": 0.4783068783068783
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu healthy breakfast run1",
+  "identical": false,
+  "embedding": 0.9948743067305017,
+  "sequence": 0.4683080146673651
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu healthy breakfast run0",
+  "identical": false,
+  "embedding": 0.9966417358531221,
+  "sequence": 0.7191629955947136
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu healthy breakfast run1",
+  "identical": false,
+  "embedding": 0.996157660108209,
+  "sequence": 0.712882096069869
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small healthy breakfast",
+  "identical": false,
+  "embedding": 0.9280851996923384,
+  "sequence": 0.04736371760500447
+ },
+ {
+  "kind": "swapped",
+  "label": "healthy breakfast vs answer to prime numbers",
+  "identical": false,
+  "embedding": 0.440213916854475,
+  "sequence": 0.055226824457593686
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu prime numbers run0/run1",
+  "identical": true,
+  "embedding": 0.9999979803519291,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu prime numbers run0/run1",
+  "identical": true,
+  "embedding": 0.9999979803519291,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu prime numbers run0/run1",
+  "identical": true,
+  "embedding": 0.9999979803519291,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu prime numbers run0",
+  "identical": true,
+  "embedding": 0.9999979803519291,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu prime numbers run1",
+  "identical": true,
+  "embedding": 0.9999979803519291,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu prime numbers run0",
+  "identical": true,
+  "embedding": 0.9999979803519291,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu prime numbers run1",
+  "identical": true,
+  "embedding": 0.9999979803519291,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu prime numbers run0",
+  "identical": true,
+  "embedding": 0.9999979803519291,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu prime numbers run1",
+  "identical": true,
+  "embedding": 0.9999979803519291,
+  "sequence": 1.0
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small prime numbers",
+  "identical": false,
+  "embedding": 0.8083854152943014,
+  "sequence": 0.6086956521739131
+ },
+ {
+  "kind": "swapped",
+  "label": "prime numbers vs answer to interview questions",
+  "identical": false,
+  "embedding": 0.3853954434274523,
+  "sequence": 0.005595970900951315
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu interview questions run0/run1",
+  "identical": false,
+  "embedding": 0.991224425980244,
+  "sequence": 0.6139315230224321
+ },
+ {
+  "kind": "repeat",
+  "label": "cpu interview questions run0/run1",
+  "identical": true,
+  "embedding": 0.9999984413381777,
+  "sequence": 1.0
+ },
+ {
+  "kind": "repeat",
+  "label": "gpu+cpu interview questions run0/run1",
+  "identical": false,
+  "embedding": 0.9813746362719036,
+  "sequence": 0.532317245272368
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu interview questions run0",
+  "identical": false,
+  "embedding": 0.9823397649305327,
+  "sequence": 0.560619600834078
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~cpu interview questions run1",
+  "identical": false,
+  "embedding": 0.9872483119964538,
+  "sequence": 0.7166819152180542
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu interview questions run0",
+  "identical": true,
+  "embedding": 0.9999988565618646,
+  "sequence": 1.0
+ },
+ {
+  "kind": "cross",
+  "label": "gpu~gpu+cpu interview questions run1",
+  "identical": false,
+  "embedding": 0.9839330895647641,
+  "sequence": 0.7111111111111111
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu interview questions run0",
+  "identical": false,
+  "embedding": 0.9823578925734479,
+  "sequence": 0.5731307715221924
+ },
+ {
+  "kind": "cross",
+  "label": "cpu~gpu+cpu interview questions run1",
+  "identical": false,
+  "embedding": 0.9956453801524539,
+  "sequence": 0.6715200931857892
+ },
+ {
+  "kind": "small",
+  "label": "gpu~small interview questions",
+  "identical": false,
+  "embedding": 0.9195675450178995,
+  "sequence": 0.010630758327427357
+ },
+ {
+  "kind": "swapped",
+  "label": "interview questions vs answer to capital of France",
+  "identical": false,
+  "embedding": 0.24386673946240578,
+  "sequence": 0.005753739930955121
+ }
+]

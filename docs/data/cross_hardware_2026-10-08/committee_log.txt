@@ -1,0 +1,72 @@
+01:20:07  INFO      VERIFY OK   id=…  primary=h1-gpu  checker=h2-gpu  agreement 1.000 >= 0.850
+01:20:09  INFO      VERIFY OK   id=…  primary=h4-cpu  checker=h3-mixed  agreement 1.000 >= 0.850
+01:20:11  INFO      VERIFY MISMATCH  id=…  primary=d-junk  checker=h1-gpu  agreement 0.529 < 0.850; committee escalation required (not yet implemented)
+01:20:11  INFO      COMMITTEE  id=…  convening N=3
+01:20:14  WARNING   COMMITTEE  id=…  verdict=CHECKER_UPHELD votes primary=0 checker=3 quorum=2 N=3  dishonest=primary(d-junk)
+01:20:14  WARNING   SLASH        node=d-junk  fraction=10.00%  burned_offchain=2.06 DAI  reason=committee verdict PRIMARY dishonest on task 0c12560b-03a8-4572-b259-3fd8bc50b287
+01:20:17  INFO      VERIFY MISMATCH  id=…  primary=d-junk  checker=h1-gpu  agreement 0.425 < 0.850; committee escalation required (not yet implemented)
+01:20:17  INFO      COMMITTEE  id=…  convening N=3
+01:20:19  WARNING   COMMITTEE  id=…  verdict=CHECKER_UPHELD votes primary=0 checker=3 quorum=2 N=3  dishonest=primary(d-junk)
+01:20:19  WARNING   SLASH        node=d-junk  fraction=10.00%  burned_offchain=1.86 DAI  reason=committee verdict PRIMARY dishonest on task 68033f12-6fcb-4645-8de8-857d8941e631
+01:20:21  INFO      VERIFY MISMATCH  id=…  primary=d-junk  checker=h1-gpu  agreement 0.517 < 0.850; committee escalation required (not yet implemented)
+01:20:21  INFO      COMMITTEE  id=…  convening N=3
+01:20:24  WARNING   COMMITTEE  id=…  verdict=CHECKER_UPHELD votes primary=0 checker=3 quorum=2 N=3  dishonest=primary(d-junk)
+01:20:24  WARNING   SLASH        node=d-junk  fraction=10.00%  burned_offchain=1.67 DAI  reason=committee verdict PRIMARY dishonest on task 66d757eb-0e25-4d95-8c09-56a3490a7643
+01:20:27  INFO      VERIFY MISMATCH  id=…  primary=d-junk  checker=h1-gpu  agreement 0.764 < 0.850; committee escalation required (not yet implemented)
+01:20:27  INFO      COMMITTEE  id=…  convening N=3
+01:20:38  WARNING   COMMITTEE  id=…  verdict=CHECKER_UPHELD votes primary=0 checker=3 quorum=2 N=3  dishonest=primary(d-junk)
+01:20:38  WARNING   SLASH        node=d-junk  fraction=10.00%  burned_offchain=1.50 DAI  reason=committee verdict PRIMARY dishonest on task f3ac5e7f-1bc1-453f-825f-e573bb81e631
+01:20:40  INFO      VERIFY MISMATCH  id=…  primary=d-junk  checker=h1-gpu  agreement 0.755 < 0.850; committee escalation required (not yet implemented)
+01:20:40  INFO      COMMITTEE  id=…  convening N=3
+01:20:49  WARNING   COMMITTEE  id=…  verdict=CHECKER_UPHELD votes primary=0 checker=3 quorum=2 N=3  dishonest=primary(d-junk)
+01:20:49  WARNING   SLASH        node=d-junk  fraction=10.00%  burned_offchain=1.35 DAI  reason=committee verdict PRIMARY dishonest on task f8954b3f-5d1c-4cda-8bb9-dcb5baf75a0f
+01:20:51  INFO      VERIFY MISMATCH  id=…  primary=d-junk  checker=h1-gpu  agreement 0.729 < 0.850; committee escalation required (not yet implemented)
+01:20:51  INFO      COMMITTEE  id=…  convening N=3
+01:21:06  WARNING   COMMITTEE  id=…  verdict=CHECKER_UPHELD votes primary=0 checker=3 quorum=2 N=3  dishonest=primary(d-junk)
+01:21:06  WARNING   SLASH        node=d-junk  fraction=10.00%  burned_offchain=1.22 DAI  reason=committee verdict PRIMARY dishonest on task b463fc4e-32b8-43af-9858-2b10645f15f4
+01:21:09  INFO      VERIFY MISMATCH  id=…  primary=d-junk  checker=h1-gpu  agreement 0.651 < 0.850; committee escalation required (not yet implemented)
+01:21:09  INFO      COMMITTEE  id=…  convening N=3
+01:21:18  WARNING   COMMITTEE  id=…  verdict=CHECKER_UPHELD votes primary=0 checker=3 quorum=2 N=3  dishonest=primary(d-junk)
+01:21:18  WARNING   SLASH        node=d-junk  fraction=10.00%  burned_offchain=1.10 DAI  reason=committee verdict PRIMARY dishonest on task ad6e89c7-8a73-4242-bf40-dc6647ff2b65
+01:21:21  INFO      VERIFY MISMATCH  id=…  primary=d-junk  checker=h1-gpu  agreement 0.730 < 0.850; committee escalation required (not yet implemented)
+01:21:21  INFO      COMMITTEE  id=…  convening N=3
+01:21:28  WARNING   COMMITTEE  id=…  verdict=CHECKER_UPHELD votes primary=0 checker=3 quorum=2 N=3  dishonest=primary(d-junk)
+01:21:28  WARNING   SLASH        node=d-junk  fraction=10.00%  burned_offchain=0.99 DAI  reason=committee verdict PRIMARY dishonest on task c8be771b-cff4-4156-977e-ef0f8a6de0c2
+01:21:30  INFO      VERIFY MISMATCH  id=…  primary=d-junk  checker=h1-gpu  agreement 0.483 < 0.850; committee escalation required (not yet implemented)
+01:21:30  INFO      COMMITTEE  id=…  convening N=3
+01:21:42  WARNING   COMMITTEE  id=…  verdict=CHECKER_UPHELD votes primary=0 checker=3 quorum=2 N=3  dishonest=primary(d-junk)
+01:21:42  WARNING   SLASH        node=d-junk  fraction=10.00%  burned_offchain=0.89 DAI  reason=committee verdict PRIMARY dishonest on task 6ed96c11-97da-42b5-a8e3-72abff5c0ae3
+01:21:44  INFO      VERIFY MISMATCH  id=…  primary=d-junk  checker=h1-gpu  agreement 0.677 < 0.850; committee escalation required (not yet implemented)
+01:21:44  INFO      COMMITTEE  id=…  convening N=3
+01:21:51  WARNING   COMMITTEE  id=…  verdict=CHECKER_UPHELD votes primary=0 checker=3 quorum=2 N=3  dishonest=primary(d-junk)
+01:21:51  WARNING   SLASH        node=d-junk  fraction=10.00%  burned_offchain=0.80 DAI  reason=committee verdict PRIMARY dishonest on task ce37eff7-2712-48f4-be9f-89f6659d095e
+01:21:52  INFO      VERIFY MISMATCH  id=…  primary=d-junk  checker=h1-gpu  agreement 0.561 < 0.850; committee escalation required (not yet implemented)
+01:21:52  INFO      COMMITTEE  id=…  convening N=3
+01:22:00  WARNING   COMMITTEE  id=…  verdict=CHECKER_UPHELD votes primary=0 checker=3 quorum=2 N=3  dishonest=primary(d-junk)
+01:22:00  WARNING   SLASH        node=d-junk  fraction=10.00%  burned_offchain=0.72 DAI  reason=committee verdict PRIMARY dishonest on task 9e87a1b9-efe2-4afc-817d-20515387514e
+01:22:02  INFO      VERIFY MISMATCH  id=…  primary=d-junk  checker=h1-gpu  agreement 0.578 < 0.850; committee escalation required (not yet implemented)
+01:22:02  INFO      COMMITTEE  id=…  convening N=3
+01:22:08  WARNING   COMMITTEE  id=…  verdict=CHECKER_UPHELD votes primary=0 checker=3 quorum=2 N=3  dishonest=primary(d-junk)
+01:22:08  WARNING   SLASH        node=d-junk  fraction=10.00%  burned_offchain=0.65 DAI  reason=committee verdict PRIMARY dishonest on task 509a40ba-8f5d-4b5b-9b92-84657af07df1
+01:22:10  INFO      VERIFY MISMATCH  id=…  primary=d-junk  checker=h1-gpu  agreement 0.586 < 0.850; committee escalation required (not yet implemented)
+01:22:10  INFO      COMMITTEE  id=…  convening N=3
+01:22:14  WARNING   COMMITTEE  id=…  verdict=CHECKER_UPHELD votes primary=0 checker=3 quorum=2 N=3  dishonest=primary(d-junk)
+01:22:14  WARNING   SLASH        node=d-junk  fraction=10.00%  burned_offchain=0.58 DAI  reason=committee verdict PRIMARY dishonest on task cc954404-5928-4847-a73c-6beb4974798e
+01:22:36  INFO      VERIFY OK   id=…  primary=d-small  checker=h1-gpu  agreement 1.000 >= 0.850
+01:22:38  INFO      VERIFY OK   id=…  primary=h3-mixed  checker=h4-cpu  agreement 1.000 >= 0.850
+01:22:40  INFO      VERIFY OK   id=…  primary=h2-gpu  checker=d-small  agreement 1.000 >= 0.850
+01:22:43  INFO      VERIFY OK   id=…  primary=h1-gpu  checker=h3-mixed  agreement 1.000 >= 0.850
+01:22:45  INFO      VERIFY OK   id=…  primary=h4-cpu  checker=h2-gpu  agreement 1.000 >= 0.850
+01:22:49  INFO      VERIFY OK   id=…  primary=d-small  checker=h1-gpu  agreement 0.962 >= 0.850
+01:23:03  INFO      VERIFY OK   id=…  primary=h3-mixed  checker=h4-cpu  agreement 0.963 >= 0.850
+01:23:06  INFO      VERIFY OK   id=…  primary=h2-gpu  checker=d-small  agreement 0.953 >= 0.850
+01:23:13  INFO      VERIFY OK   id=…  primary=h1-gpu  checker=h3-mixed  agreement 0.999 >= 0.850
+01:23:20  INFO      VERIFY OK   id=…  primary=h4-cpu  checker=h2-gpu  agreement 0.975 >= 0.850
+01:23:23  INFO      VERIFY MISMATCH  id=…  primary=d-small  checker=h1-gpu  agreement 0.803 < 0.850; committee escalation required (not yet implemented)
+01:23:23  INFO      COMMITTEE  id=…  convening N=3
+01:23:37  WARNING   COMMITTEE  id=…  verdict=CHECKER_UPHELD votes primary=0 checker=3 quorum=2 N=3  dishonest=primary(d-small)
+01:23:37  WARNING   SLASH        node=d-small  fraction=10.00%  burned_offchain=2.25 DAI  reason=committee verdict PRIMARY dishonest on task 26635bd4-557a-4ab8-b373-35add1b63065
+01:23:38  INFO      VERIFY OK   id=…  primary=d-small  checker=h1-gpu  agreement 0.968 >= 0.850
+01:23:47  INFO      VERIFY OK   id=…  primary=h3-mixed  checker=h4-cpu  agreement 0.946 >= 0.850
+01:23:49  INFO      VERIFY OK   id=…  primary=h2-gpu  checker=d-small  agreement 0.899 >= 0.850
+01:23:52  INFO      VERIFY OK   id=…  primary=h1-gpu  checker=h3-mixed  agreement 0.923 >= 0.850
