@@ -413,6 +413,28 @@ the node can't tell which task is a trap.
   canaries *complement* — they don't replace — redundancy/TEE for genuinely
   new work.
 
+**Built (cheap-checks branch, unit-tested; not yet run against real nodes).**
+`protocol/golden.py` builds a known-answer set offline against the reference
+stack (`python protocol/golden.py build --model M --seed S --out golden.json`).
+With `--golden-file`, the orchestrator can:
+- qualify (`--qualify-challenges N`): a node joining with a model in the set
+  answers N golden tasks before it gets work for that model; a majority must
+  match the reference under the normal comparator and threshold. Their timing
+  gives `measured_tokens_per_s` in `/status`, the first measured capability
+  figure (nothing is scored on it yet);
+- send canaries (`--canary-interval S`): about one every S seconds, a golden
+  task goes to a random idle, cleared node in exactly the same message format
+  as real work, and a match is paid like work, so neither the task nor its
+  payment gives it away.
+
+A miss is treated as evidence, not proof (honest hardware differs; the
+reference is one sample): it never slashes. A node that missed its last canary
+has every paid task rechecked until it passes one, and
+`--canary-max-fails` misses in a row (default 3) stop it getting work. A
+comparator outage makes a check inconclusive, never a failure. The
+indistinguishability problem above is unsolved: the built-in prompt bank is
+for testing only.
+
 **The layered picture (the reduction goal).** qualification (screen in, set
 tier) → canaries + reputation (cheap ongoing checks; lower `p` for proven
 nodes) → redundancy (fallback for novel prompts on untrusted nodes) → TEE
