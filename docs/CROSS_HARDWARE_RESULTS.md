@@ -166,3 +166,37 @@ objection asks a panel of other scorers; a majority "unlikely" treats the primar
 scheduled, quarantined) and the requester gets a fresh answer from another node. Anything inconclusive
 falls back to generate-and-compare. Data: `docs/data/likelihood_2026-10-08/scores.json`; script:
 `tests/likelihood_probe.py`.
+
+## Reproducible answers on one machine (added 2026-10-08, branch `deterministic-answers`)
+
+Temperature 0 and a fixed seed don't make llama-server repeat itself on a GPU. The server
+batches concurrent requests from its slots together and reuses cached prompt prefixes, and
+both change the shape of the GPU arithmetic, so near-ties in the logits break differently.
+Measured on the RTX 5090 with Qwen2.5-0.5B: the same seeded 300-token request was repeated
+6 times while 0–3 other requests ran alongside it.
+
+| llama-server | request | distinct answers in 6 |
+| --- | --- | --- |
+| `-np 4` (several slots) | default | 6 |
+| `-np 4` | `cache_prompt: false` | 4 |
+| `-np 1` (one slot) | default | 3 |
+| `-np 1` | `cache_prompt: false` | **1** (byte-identical) |
+
+On the CPU, all four settings repeated exactly. AVE saw the same effect at scale: two
+default-mode runs of a 480-case agent benchmark disagreed on 7.5% of cases, and two runs
+with one slot and no prompt cache matched byte for byte (ave-registry
+`benchmark/RESULTS-v3.md`).
+
+So on this branch:
+
+- A node whose backend is llama-server sends `cache_prompt: false` with every seeded task.
+  Seeded means the model has a registered stack, so the answer is meant to be checkable.
+- At start-up the node reads the server's slot count (`/props`) and, if it's above 1, says
+  to start llama-server with `-np 1` for answers that repeat exactly.
+- The verifier accepts identical text as a match before asking the embedding comparator.
+  Two such nodes on the same hardware then verify each other exactly, with no model call
+  and no threshold. Across different hardware, answers still differ slightly (sections
+  above), and the comparator or the likelihood check takes over as before.
+
+A single slot serves one request at a time. That costs throughput on a busy node, which is
+why it's a recommendation and not enforced.

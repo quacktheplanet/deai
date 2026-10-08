@@ -51,9 +51,16 @@ def test_unavailable_comparator_on_paraphrase_is_unverified_not_mismatch():
     assert out.method == "unverified"
 
 
-def test_unavailable_comparator_still_confirms_identical_text():
+def test_identical_text_is_confirmed_without_the_comparator():
     v = RedundantExecutionVerifier(sample_rate=1.0, comparator=_down)
-    out = v.compare(TASK, _r(SAME), _r(SAME))
+    out = v.compare(TASK, _r(SAME), _r(SAME + "\n"))
+    assert out.accepted and not out.unverified
+    assert out.method == "redundant_match" and out.detail == "identical text"
+
+
+def test_unavailable_comparator_still_confirms_near_identical_text():
+    v = RedundantExecutionVerifier(sample_rate=1.0, comparator=_down)
+    out = v.compare(TASK, _r(SAME), _r(SAME.rstrip(".") + "!"))
     assert out.accepted and not out.unverified
     assert out.method == "redundant_match"
     assert "sequence ratio" in out.detail
@@ -235,7 +242,7 @@ async def test_compare_runs_off_the_event_loop():
     import threading
     _register()
     _add("a", SAME)
-    _add("b", SAME)
+    _add("b", PARAPHRASE)                # identical text wouldn't reach the comparator
     seen = []
 
     def where(a, b):

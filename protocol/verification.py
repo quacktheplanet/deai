@@ -172,6 +172,17 @@ class RedundantExecutionVerifier(Verifier):
     def compare(
         self, task: Task, primary: TaskResult, redundant: TaskResult
     ) -> VerificationOutcome:
+        if primary.content.strip() == redundant.content.strip():
+            # Same model, same seed, reproducible backend (llama-server with
+            # one slot and no prompt cache): the answers match byte for byte,
+            # and no comparator is needed, or can be wrong.
+            return VerificationOutcome(
+                accepted=True,
+                method="redundant_match",
+                rechecked=True,
+                agreement=1.0,
+                detail="identical text",
+            )
         try:
             score = self._comparator(primary.content, redundant.content)
             how = ""

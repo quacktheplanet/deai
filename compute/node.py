@@ -233,6 +233,24 @@ async def run_mock_inference(model: str, messages: list, max_tokens: int, temper
     return content, len(content.split()) + len(last_user_msg.split())
 
 
+# Extra fields for seeded generation requests. A llama-server backend gets
+# {"cache_prompt": False}: reusing a cached prompt prefix changes the
+# arithmetic, so the same seeded request could come out differently. With one
+# server slot (-np 1) as well, its answers repeat byte for byte, and two such
+# nodes on the same hardware verify each other by exact match.
+SEEDED_REQUEST_EXTRA: dict = {}
+
+
+async def llama_server_slots(url: str) -> int | None:
+    """Parallel slots of a llama-server backend (its /props), or None."""
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            r = await client.get(url.rstrip("/") + "/props")
+            return int(r.json()["total_slots"]) if r.status_code == 200 else None
+    except Exception:
+        return None
+
+
 async def run_ollama_inference(
     model: str,
     messages: list,
@@ -258,6 +276,7 @@ async def run_ollama_inference(
     }
     if seed is not None:
         request_body["seed"] = seed
+        request_body.update(SEEDED_REQUEST_EXTRA)
 
     async with httpx.AsyncClient(timeout=180.0) as client:
         resp = await client.post(
@@ -508,6 +527,11 @@ if __name__ == "__main__":
         can_score = (args.ollama or args.auto) and await supports_scoring(ollama_url)
         if can_score:
             log.info("Backend can score answers: offering likelihood checks")
+            SEEDED_REQUEST_EXTRA["cache_prompt"] = False
+            slots = await llama_server_slots(ollama_url)
+            if slots and slots > 1:
+                log.info(f"llama-server has {slots} slots; start it with -np 1 for answers that "
+                         "repeat exactly (other nodes can then verify them by exact match)")
 
         node_info = NodeInfo(
             node_id=node_id,
