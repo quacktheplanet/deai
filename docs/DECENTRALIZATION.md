@@ -187,6 +187,34 @@ Open problems with this direction:
 This is the one row of the job table that is research rather than assembly. It should be
 worked on in parallel with the networking, not after it.
 
+### Prototype: one-way payment channels (branch `payment-channels`)
+
+A concrete shape for requester-funded receipts, built and tested locally (nothing deployed):
+
+- **`chain/contracts/PaymentChannels.sol`.** A requester opens a channel to a worker with a
+  deposit. While the answer streams in, the requester signs EIP-712 vouchers: "this worker may
+  claim up to X in total". Each voucher replaces the last; the worker claims the latest one
+  whenever it likes, and `claimMany` settles several channels in one transaction. After expiry the
+  requester takes back whatever wasn't claimed. Measured on the local test chain: about 80k gas for
+  one claim, about 55k a channel when five are batched.
+- **`protocol/payments.py`.** Signing and checking vouchers (checked byte for byte against ethers
+  and the contract), plus chunked pay: the worker produces at most one chunk beyond what it has been
+  paid for, and the requester signs only for what arrived.
+
+How it answers the open problems above:
+
+| Problem | With channels |
+| --- | --- |
+| A requester refuses to sign | The worker stops; it loses at most one chunk (64 tokens by default). |
+| Self-dealing | Nothing is minted; paying yourself moves your own deposit. |
+| On-chain cost | One claim per channel, not per task, and channels batch. |
+| Bootstrapping subsidy | **Still open.** A subsidy is minted money, so it must be bounded and tied to verified work, never to vouchers alone. |
+
+Not done: wiring it into the request path (it needs requester and worker to talk directly, D2);
+agreeing how output is counted (both sides must count tokens the same way); and how the
+requester learns a worker's address and price. The existing `PaymentContract.sol` (per-task
+escrow, orchestrator-released, with a minted bonus) is untouched.
+
 ## The launcher
 
 "Any modern machine can run it" is mostly a launcher problem, and every step of it was done
