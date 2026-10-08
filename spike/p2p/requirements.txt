@@ -1,0 +1,5 @@
+# py-libp2p, pinned to the version the spike was tested with.
+# Windows: installs from wheels on Python 3.10-3.13 (fastecdsa is skipped on Windows).
+# Linux:   fastecdsa 2.3.2 has no Linux wheels and is compiled; needs GMP headers.
+# macOS:   Apple Silicon + Python 3.12 installs from wheels; otherwise needs `brew install gmp`.
+libp2p==0.8.0

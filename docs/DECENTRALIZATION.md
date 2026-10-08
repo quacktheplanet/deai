@@ -246,6 +246,22 @@ This spike also answers the practical question that started this document — ge
 separate machines working together — in the decentralized way rather than by putting an
 orchestrator on a public server.
 
+**Status (2026-10-08): local half done, two-machine half next.** The kit and full results
+are in [spike/p2p/README.md](../spike/p2p/README.md). On one machine (py-libp2p 0.8.0,
+separate processes on 127.0.0.1):
+
+- **Work:** relay reservation, connection and messaging through the relay, and Kademlia
+  discovery (a "serves model X" record, plus two peers finding a third through the seed).
+- **Can't be judged on one host:** hole punching (DCUtR). A real test needs the relay on a
+  third network.
+- **Broken in 0.8.0:** AutoNAT reports every peer as publicly reachable.
+- **UPnP:** exists in the library. Untestable on the pod, which has no router.
+
+IP privacy: in private mode the requester and worker each saw only the relay. But ordinary
+DHT traffic dials peers directly, so private mode must cover DHT traffic too.
+py-libp2p 0.8.0 installs natively on Windows with Python 3.12 or 3.13. Next step: the
+laptop acts as the reachable relay, through UPnP or a port forward.
+
 ## Open questions
 
 - **Payment publisher.** Requester-funded receipts are the leading direction, but the
