@@ -137,3 +137,32 @@ Two problems the live run exposed (not fixed here):
   `python tests/cross_backend_agreement.py --backend gpu=URL --backend cpu=URL ... --model M
   --small M_SMALL@URL --embedding-url URL --runs 2 --out DIR` (answers are cached in DIR so
   an interrupted run resumes).
+
+## Likelihood check (added 2026-10-08, branch `likelihood-check`)
+
+The embedding check can't tell a cheaper model's answer from the real one's. So the saved answers
+above were scored a second way: the reference model (Qwen2.5-7B Q4_K_M, llama.cpp b11057 on CPU)
+was made to produce each answer's exact text (a grammar that admits only that string), and for each
+token we read whether it was the model's own first choice and how likely it found it.
+
+| Answers | n | First-choice share, min / median | Mean log-prob, min / median | Judged (16+ tokens) |
+|---|---|---|---|---|
+| Honest 7B (made by Ollama's llama.cpp build, scored by b11057) | 30 | 0.896 / 0.978 | -0.569 / -0.166 | 25 likely, **0 unlikely**, 5 too short |
+| 0.5B posing as 7B | 30 | 0.261 / 0.696 | -7.59 / -1.58 | **23 unlikely**, 2 likely, 5 too short |
+
+- With "at least 88% first choices and a mean of -0.65 or better", 23 of the 25 judgeable substitute
+  answers are caught (the embedding check caught 6 of 30) and no honest answer is flagged.
+- The two it misses are answers with essentially one way to say them: the list of planets and a long
+  worked compound-interest example. Answers under 16 tokens ("Paris", "56") carry too little signal and
+  are left to the embedding check.
+- The margins are thin (honest minimum 0.896 against the 0.88 line; -0.569 against -0.65). Scoring on
+  other hardware will move them; collect more before any of this can lead to a slash.
+- Cost: one forced pass over the answer on the checker, at generation speed, instead of generating a
+  second answer and embedding both.
+
+How it's wired (`protocol/likelihood.py`, `--verify-likelihood`): on a recheck, a node whose backend can
+score (llama-server) scores the primary's text. "Likely" verifies the task with no second generation. An
+objection asks a panel of other scorers; a majority "unlikely" treats the primary as dishonest (slash
+scheduled, quarantined) and the requester gets a fresh answer from another node. Anything inconclusive
+falls back to generate-and-compare. Data: `docs/data/likelihood_2026-10-08/scores.json`; script:
+`tests/likelihood_probe.py`.

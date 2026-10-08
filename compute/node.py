@@ -50,6 +50,7 @@ import websockets
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from shared.schemas import NodeInfo, WSMessage
+from protocol.likelihood import score_text, supports_scoring
 
 logging.basicConfig(
     level=logging.INFO,
@@ -366,6 +367,24 @@ async def run_node(orchestrator_url: str, node_info: NodeInfo, use_ollama: bool,
                     async for raw in ws:
                         msg = json.loads(raw)
 
+                        if msg.get("type") == "score":
+                            # Likelihood check: how likely does this node's model find
+                            # another node's answer? (protocol/likelihood.py)
+                            p = msg["payload"]
+                            reply = {"task_id": p["task_id"], "node_id": node_info.node_id}
+                            try:
+                                s = await score_text(ollama_url, p["messages"], p["text"])
+                                if s is None:
+                                    reply["error"] = "backend could not score this text"
+                                else:
+                                    reply.update(tokens=s.tokens, top1_rate=s.top1_rate,
+                                                 mean_logprob=s.mean_logprob)
+                            except Exception as e:
+                                reply["error"] = f"{type(e).__name__}: {e}"
+                            await ws.send(WSMessage(type="score_result", payload=reply).model_dump_json())
+                            log.info(f"Scored         id={p['task_id']}  {reply.get('error') or ''}")
+                            continue
+
                         if msg.get("type") == "task":
                             payload = msg["payload"]
                             task_id = payload["task_id"]
@@ -485,6 +504,10 @@ if __name__ == "__main__":
             models = ["any"]
 
         node_id = args.id or f"{socket.gethostname()}-{uuid.uuid4().hex[:6]}"
+        # llama-server style backends can score other nodes' answers.
+        can_score = (args.ollama or args.auto) and await supports_scoring(ollama_url)
+        if can_score:
+            log.info("Backend can score answers: offering likelihood checks")
 
         node_info = NodeInfo(
             node_id=node_id,
@@ -494,6 +517,7 @@ if __name__ == "__main__":
             ram_gb=args.ram,
             wallet=args.wallet or None,
             project=args.project or None,
+            can_score=bool(can_score),
         )
 
         use_ollama = args.ollama or args.auto

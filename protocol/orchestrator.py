@@ -42,6 +42,7 @@ import asyncio
 import json
 import logging
 import random
+import uuid
 import sys
 import time
 import os
@@ -73,6 +74,7 @@ from verification import (
     default_comparator,
 )
 from golden import GoldenSet, GoldenEntry
+from likelihood import LikelihoodPolicy, LikelihoodScore
 from model_registry import ModelRegistry, ModelStack
 from committee import (
     CommitteeOutcome, Verdict, quorum, tally_votes,
@@ -175,6 +177,9 @@ pending_events: Dict[str, asyncio.Event] = {}
 # task_id → TaskResult
 results: Dict[str, TaskResult] = {}
 
+# score task_id → score_result payload (likelihood checks)
+score_results: Dict[str, dict] = {}
+
 # simple stats. Of the completed tasks: verified = a second node's result was
 # compared and agreed; unverified = a recheck was attempted but could not
 # decide (no free checker, comparator down, no committee quorum) and the task
@@ -204,6 +209,7 @@ _committee_timeout: float = DEFAULT_COMMITTEE_TIMEOUT_S
 _appeal_window: float = DEFAULT_APPEAL_WINDOW_S
 _slash_fraction: float = DEFAULT_SLASH_FRACTION
 _quarantine_seconds: float = 3600.0
+_likelihood: Optional[LikelihoodPolicy] = None   # --verify-likelihood
 
 
 def quarantined(node: NodeConnection) -> bool:
@@ -383,6 +389,13 @@ async def node_endpoint(ws: WebSocket):
                 # just hand the raw result back to the waiting request.
                 if result.task_id in pending_events:
                     pending_events[result.task_id].set()
+
+            elif msg.type == "score_result":
+                p = msg.payload
+                score_results[p.get("task_id")] = p
+                nodes[node_id].status = NodeStatus.idle
+                if p.get("task_id") in pending_events:
+                    pending_events[p["task_id"]].set()
 
             elif msg.type == "task_failed":
                 task_id = msg.payload.get("task_id")
@@ -812,6 +825,80 @@ async def _canary_loop() -> None:
             log.error(f"canary error  err={e}")
 
 
+# ── Likelihood check (protocol/likelihood.py) ─────────────────────────────────
+#
+# "Did this text come from the claimed model?" — which the embedding check
+# can't answer (a cheaper model's answer means the same thing). A node whose
+# backend can score asks its own copy of the model how likely the primary's
+# exact text is. One objection convenes scorers; a majority decides. When no
+# scorer can decide (short text, none free), the generation-and-compare check
+# runs as before.
+
+def _scorers(model: str, exclude: set) -> list:
+    return [n for n in nodes.values()
+            if n.status == NodeStatus.idle and getattr(n.info, "can_score", False)
+            and model in n.info.models and n.info.node_id not in exclude
+            and not quarantined(n) and cleared_for(n, model)]
+
+
+async def _ask_score(node: NodeConnection, task: Task, text: str) -> Optional[bool]:
+    sid = f"score-{uuid.uuid4()}"
+    event = asyncio.Event()
+    pending_events[sid] = event
+    node.status = NodeStatus.busy
+    node.last_task_time = time.time()
+    try:
+        await node.ws.send_text(json.dumps({"type": "score", "payload": {
+            "task_id": sid, "model": task.model,
+            "messages": [m.model_dump() for m in task.messages], "text": text}}))
+        await asyncio.wait_for(event.wait(), timeout=_timeout_for(node) * 2)
+    except Exception:
+        node.status = NodeStatus.idle
+        return None
+    finally:
+        pending_events.pop(sid, None)
+    p = score_results.pop(sid, None) or {}
+    if "tokens" not in p:
+        return None
+    s = LikelihoodScore(tokens=p["tokens"], top1_rate=p["top1_rate"], mean_logprob=p["mean_logprob"])
+    verdict = _likelihood.judge(s)
+    log.info(f"LIKELIHOOD  scorer={node.info.node_id}  tokens={s.tokens}  top1={s.top1_rate:.3f}  "
+             f"mean_lp={s.mean_logprob:.3f}  -> {'likely' if verdict else 'unlikely' if verdict is False else 'inconclusive'}")
+    return verdict
+
+
+async def _likelihood_check(task: Task, primary: TaskResult, primary_node: NodeConnection) -> str:
+    """'likely' | 'unlikely' | 'unknown'."""
+    exclude = {primary_node.info.node_id}
+    first = _scorers(task.model, exclude)
+    if not first:
+        return "unknown"
+    scorer = random.choice(first)
+    verdict = await _ask_score(scorer, task, primary.content)
+    if verdict is None:
+        return "unknown"
+    if verdict:
+        return "likely"
+    # One objection: ask more scorers before acting on it.
+    exclude.add(scorer.info.node_id)
+    panel = _scorers(task.model, exclude)
+    random.shuffle(panel)
+    panel = panel[:_committee_size]
+    if len(panel) < quorum(_committee_size):
+        log.warning(f"LIKELIHOOD  id={task.task_id}  objection but too few scorers ({len(panel)}); falling back")
+        return "unknown"
+    votes = await asyncio.gather(*(_ask_score(n, task, primary.content) for n in panel))
+    unlikely = sum(v is False for v in votes)
+    likely = sum(v is True for v in votes)
+    q = quorum(_committee_size)
+    log.info(f"LIKELIHOOD  id={task.task_id}  panel unlikely={unlikely} likely={likely} quorum={q}")
+    if unlikely >= q:
+        return "unlikely"
+    if likely >= q:
+        return "likely"
+    return "unknown"
+
+
 # ── HTTP: OpenAI-compatible inference endpoint ────────────────────────────────
 
 @app.post("/v1/chat/completions", response_model=ChatResponse)
@@ -870,94 +957,116 @@ async def chat_completions(req: ChatRequest, response: Response, _auth=Depends(_
     suspect = is_suspect(primary_node) and isinstance(effective_verifier, RedundantExecutionVerifier)
     if suspect or effective_verifier.should_recheck(task, primary):
         verification = "unverified"
-        shadow = Task(
-            model=task.model,
-            messages=task.messages,
-            max_tokens=task.max_tokens,
-            temperature=task.temperature,
-            seed=task.seed,
-        )
-        r2, n2, s2 = await _dispatch_and_wait(
-            shadow, exclude={primary_node.info.node_id}
-        )
-        if s2 != "ok" or not effective_verifier.well_formed(r2):
-            # No independent checker free — cannot verify. Accept optimistically
-            # rather than punish a provider for a thin network; record that this
-            # task went unverified.
-            log.warning(f"VERIFY skip   id={task.task_id}  reason=no-checker-available")
-        else:
-            # In a thread: an embedding comparator makes a blocking HTTP call
-            # that can take a while when its model is cold.
-            outcome = await asyncio.to_thread(effective_verifier.compare, task, primary, r2)
-            label = "unverified" if outcome.unverified else ("OK " if outcome.accepted else "MISMATCH")
-            log.info(
-                f"VERIFY {label}  "
-                f"id={task.task_id}  primary={primary_node.info.node_id}  "
-                f"checker={n2.info.node_id}  {outcome.detail}"
+        lik = await _likelihood_check(task, primary, primary_node) if _likelihood else "unknown"
+        if lik == "likely":
+            verification = "verified"
+        elif lik == "unlikely":
+            # Scorers agreed this text is unlikely to be the model's output:
+            # the primary is treated as dishonest, and the requester gets a
+            # fresh answer from another node instead.
+            asyncio.create_task(_schedule_slash(
+                primary_node.info.node_id, primary_node.info.wallet, _slash_fraction,
+                f"likelihood committee: output unlikely under {task.model} on task {task.task_id}",
+                _appeal_window,
+            ))
+            primary_node.quarantined_until = time.time() + _quarantine_seconds
+            redo = Task(model=task.model, messages=task.messages, max_tokens=task.max_tokens,
+                        temperature=task.temperature, seed=task.seed)
+            r3, n3, s3 = await _dispatch_and_wait(redo, exclude={primary_node.info.node_id})
+            if s3 != "ok" or not effective_verifier.well_formed(r3):
+                stats["failed"] += 1
+                raise HTTPException(status_code=502,
+                                    detail="Primary result rejected (unlikely under the model); no other node free")
+            primary, primary_node = r3, n3
+        if lik == "unknown":
+            shadow = Task(
+                model=task.model,
+                messages=task.messages,
+                max_tokens=task.max_tokens,
+                temperature=task.temperature,
+                seed=task.seed,
             )
-            if outcome.accepted and not outcome.unverified:
-                verification = "verified"
-            if not outcome.accepted:
-                # §13: convene a committee, decide by majority, and only on a
-                # confirmed dishonest verdict schedule a delayed slash. A
-                # 2-sample mismatch never auto-slashes — false-positive
-                # slashing of an honest provider is flagged existential.
-                # Neither side takes new work while the dispute is decided.
-                hold = time.time() + _committee_timeout + 5
-                for n in (primary_node, n2):
-                    n.quarantined_until = max(n.quarantined_until, hold)
-                committee_outcome = await _convene_committee(
-                    task, primary, r2, primary_node, n2,
-                    effective_verifier._comparator,
-                    effective_verifier.agreement_threshold,
+            r2, n2, s2 = await _dispatch_and_wait(
+                shadow, exclude={primary_node.info.node_id}
+            )
+            if s2 != "ok" or not effective_verifier.well_formed(r2):
+                # No independent checker free — cannot verify. Accept optimistically
+                # rather than punish a provider for a thin network; record that this
+                # task went unverified.
+                log.warning(f"VERIFY skip   id={task.task_id}  reason=no-checker-available")
+            else:
+                # In a thread: an embedding comparator makes a blocking HTTP call
+                # that can take a while when its model is cold.
+                outcome = await asyncio.to_thread(effective_verifier.compare, task, primary, r2)
+                label = "unverified" if outcome.unverified else ("OK " if outcome.accepted else "MISMATCH")
+                log.info(
+                    f"VERIFY {label}  "
+                    f"id={task.task_id}  primary={primary_node.info.node_id}  "
+                    f"checker={n2.info.node_id}  {outcome.detail}"
                 )
-                for n in (primary_node, n2):
-                    if n.quarantined_until == hold:
-                        n.quarantined_until = 0.0
-                if committee_outcome is None:
-                    # §13.3 fallback: insufficient committee → FINALIZED*.
-                    log.warning(
-                        f"VERIFY unverified  id={task.task_id}  "
-                        f"reason=committee-unavailable; accepting optimistically"
-                    )
-                elif committee_outcome.verdict is Verdict.PRIMARY_UPHELD:
-                    log.info(
-                        f"COMMITTEE  id={task.task_id}  verdict=PRIMARY_UPHELD "
-                        f"{committee_outcome.detail}  dishonest=checker({n2.info.node_id})"
-                    )
-                    asyncio.create_task(_schedule_slash(
-                        n2.info.node_id, n2.info.wallet, _slash_fraction,
-                        f"committee verdict CHECKER dishonest on task {task.task_id}",
-                        _appeal_window,
-                    ))
-                    n2.quarantined_until = time.time() + _quarantine_seconds
+                if outcome.accepted and not outcome.unverified:
                     verification = "verified"
-                    # primary wins → fall through to accrual.
-                elif committee_outcome.verdict is Verdict.CHECKER_UPHELD:
-                    log.warning(
-                        f"COMMITTEE  id={task.task_id}  verdict=CHECKER_UPHELD "
-                        f"{committee_outcome.detail}  dishonest=primary({primary_node.info.node_id})"
+                if not outcome.accepted:
+                    # §13: convene a committee, decide by majority, and only on a
+                    # confirmed dishonest verdict schedule a delayed slash. A
+                    # 2-sample mismatch never auto-slashes — false-positive
+                    # slashing of an honest provider is flagged existential.
+                    # Neither side takes new work while the dispute is decided.
+                    hold = time.time() + _committee_timeout + 5
+                    for n in (primary_node, n2):
+                        n.quarantined_until = max(n.quarantined_until, hold)
+                    committee_outcome = await _convene_committee(
+                        task, primary, r2, primary_node, n2,
+                        effective_verifier._comparator,
+                        effective_verifier.agreement_threshold,
                     )
-                    asyncio.create_task(_schedule_slash(
-                        primary_node.info.node_id, primary_node.info.wallet, _slash_fraction,
-                        f"committee verdict PRIMARY dishonest on task {task.task_id}",
-                        _appeal_window,
-                    ))
-                    primary_node.quarantined_until = time.time() + _quarantine_seconds
-                    # The committee confirmed the checker's answer: that is the
-                    # answer the requester gets, and the checker is paid for it.
-                    primary, primary_node = r2, n2
-                    verification = "verified"
-                else:  # UNRESOLVABLE — tie or no majority. No slash, no pay.
-                    log.warning(
-                        f"COMMITTEE  id={task.task_id}  verdict=UNRESOLVABLE "
-                        f"{committee_outcome.detail}"
-                    )
-                    stats["failed"] += 1
-                    raise HTTPException(
-                        status_code=502,
-                        detail=f"Verification unresolvable ({committee_outcome.detail})",
-                    )
+                    for n in (primary_node, n2):
+                        if n.quarantined_until == hold:
+                            n.quarantined_until = 0.0
+                    if committee_outcome is None:
+                        # §13.3 fallback: insufficient committee → FINALIZED*.
+                        log.warning(
+                            f"VERIFY unverified  id={task.task_id}  "
+                            f"reason=committee-unavailable; accepting optimistically"
+                        )
+                    elif committee_outcome.verdict is Verdict.PRIMARY_UPHELD:
+                        log.info(
+                            f"COMMITTEE  id={task.task_id}  verdict=PRIMARY_UPHELD "
+                            f"{committee_outcome.detail}  dishonest=checker({n2.info.node_id})"
+                        )
+                        asyncio.create_task(_schedule_slash(
+                            n2.info.node_id, n2.info.wallet, _slash_fraction,
+                            f"committee verdict CHECKER dishonest on task {task.task_id}",
+                            _appeal_window,
+                        ))
+                        n2.quarantined_until = time.time() + _quarantine_seconds
+                        verification = "verified"
+                        # primary wins → fall through to accrual.
+                    elif committee_outcome.verdict is Verdict.CHECKER_UPHELD:
+                        log.warning(
+                            f"COMMITTEE  id={task.task_id}  verdict=CHECKER_UPHELD "
+                            f"{committee_outcome.detail}  dishonest=primary({primary_node.info.node_id})"
+                        )
+                        asyncio.create_task(_schedule_slash(
+                            primary_node.info.node_id, primary_node.info.wallet, _slash_fraction,
+                            f"committee verdict PRIMARY dishonest on task {task.task_id}",
+                            _appeal_window,
+                        ))
+                        primary_node.quarantined_until = time.time() + _quarantine_seconds
+                        # The committee confirmed the checker's answer: that is the
+                        # answer the requester gets, and the checker is paid for it.
+                        primary, primary_node = r2, n2
+                        verification = "verified"
+                    else:  # UNRESOLVABLE — tie or no majority. No slash, no pay.
+                        log.warning(
+                            f"COMMITTEE  id={task.task_id}  verdict=UNRESOLVABLE "
+                            f"{committee_outcome.detail}"
+                        )
+                        stats["failed"] += 1
+                        raise HTTPException(
+                            status_code=502,
+                            detail=f"Verification unresolvable ({committee_outcome.detail})",
+                        )
 
     # Accepted → finalize the reward (off-chain ledger + optional on-chain mint).
     # Unverified tasks are paid too (optimistic, as with no free checker); the
@@ -1265,6 +1374,11 @@ if __name__ == "__main__":
                         default=float(os.getenv("DAI_APPEAL_WINDOW", str(DEFAULT_APPEAL_WINDOW_S))),
                         help=f"Seconds between a dishonest verdict and the slash "
                              f"firing (default {DEFAULT_APPEAL_WINDOW_S}). 0 = immediate.")
+    parser.add_argument("--verify-likelihood", action="store_true",
+                        default=os.getenv("DAI_VERIFY_LIKELIHOOD", "") == "1",
+                        help="On a recheck, first ask a node that can score (llama-server backend) how "
+                             "likely the primary's exact text is under the model; catches cheaper-model "
+                             "substitutes the embedding check can't. Falls back to generate-and-compare.")
     parser.add_argument("--quarantine", type=float,
                         default=float(os.getenv("DAI_QUARANTINE", "3600")),
                         help="Seconds a node found dishonest by a committee gets no work "
@@ -1336,6 +1450,9 @@ if __name__ == "__main__":
     _appeal_window = args.appeal_window
     _slash_fraction = args.slash_fraction
     _quarantine_seconds = args.quarantine
+    if args.verify_likelihood:
+        _likelihood = LikelihoodPolicy()
+        log.info(f"Likelihood check ON  {_likelihood}")
     log.info(
         f"Committee escalation: size={_committee_size} "
         f"timeout={_committee_timeout:.0f}s "

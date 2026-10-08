@@ -1,0 +1,482 @@
+{
+ "small|capital of France|0": {
+  "tokens": 2,
+  "mean_lp": -7.212661375888274e-05,
+  "min_lp": -0.00014127299073152244,
+  "top1": 1.0,
+  "matched": true,
+  "seconds": 1.080880880355835
+ },
+ "small|7 \u00d7 8|0": {
+  "tokens": 3,
+  "mean_lp": -7.593141722803542,
+  "min_lp": -22.762453079223633,
+  "top1": 0.6666666666666666,
+  "matched": true,
+  "seconds": 1.1671130657196045
+ },
+ "small|WW2 end year|0": {
+  "tokens": 5,
+  "mean_lp": -8.583087037550286e-07,
+  "min_lp": -4.291543518775143e-06,
+  "top1": 1.0,
+  "matched": true,
+  "seconds": 1.4452195167541504
+ },
+ "small|boiling point water|0": {
+  "tokens": 5,
+  "mean_lp": -3.0543966293367704,
+  "min_lp": -15.271977424621582,
+  "top1": 0.8,
+  "matched": true,
+  "seconds": 1.5089914798736572
+ },
+ "small|speed of light unit|0": {
+  "tokens": 12,
+  "mean_lp": -1.380673428301937,
+  "min_lp": -16.41244888305664,
+  "top1": 0.9166666666666666,
+  "matched": true,
+  "seconds": 2.3610167503356934
+ },
+ "cpu|capital of France|0": {
+  "tokens": 2,
+  "mean_lp": -7.212661375888274e-05,
+  "min_lp": -0.00014127299073152244,
+  "top1": 1.0,
+  "matched": true,
+  "seconds": 1.0617115497589111
+ },
+ "small|TCP handshake|0": {
+  "tokens": 252,
+  "mean_lp": -1.5178196917063707,
+  "min_lp": -40.0794677734375,
+  "top1": 0.7023809523809523,
+  "matched": true,
+  "seconds": 34.26387977600098
+ },
+ "cpu|7 \u00d7 8|0": {
+  "tokens": 3,
+  "mean_lp": -5.960469782924823e-07,
+  "min_lp": -1.7881409348774469e-06,
+  "top1": 1.0,
+  "matched": true,
+  "seconds": 1.1623907089233398
+ },
+ "small|list vs tuple|0": {
+  "tokens": 210,
+  "mean_lp": -2.521941441735834,
+  "min_lp": -37.6141357421875,
+  "top1": 0.5857142857142857,
+  "matched": true,
+  "seconds": 27.95682954788208
+ },
+ "small|HTTPS encryption|0": {
+  "tokens": 124,
+  "mean_lp": -1.211835768163723,
+  "min_lp": -11.74582290649414,
+  "top1": 0.6854838709677419,
+  "matched": true,
+  "seconds": 16.83894419670105
+ },
+ "small|RAM vs storage|0": {
+  "tokens": 70,
+  "mean_lp": -2.034504719587642,
+  "min_lp": -11.165821075439453,
+  "top1": 0.5285714285714286,
+  "matched": true,
+  "seconds": 11.59160828590393
+ },
+ "small|git rebase vs merge|0": {
+  "tokens": 76,
+  "mean_lp": -3.0923674837396313,
+  "min_lp": -28.948047637939453,
+  "top1": 0.39473684210526316,
+  "matched": true,
+  "seconds": 11.651877880096436
+ },
+ "small|robot story|0": {
+  "tokens": 62,
+  "mean_lp": -2.969974488902729,
+  "min_lp": -23.765722274780273,
+  "top1": 0.532258064516129,
+  "matched": true,
+  "seconds": 9.02730917930603
+ },
+ "cpu|WW2 end year|0": {
+  "tokens": 5,
+  "mean_lp": -8.583087037550286e-07,
+  "min_lp": -4.291543518775143e-06,
+  "top1": 1.0,
+  "matched": true,
+  "seconds": 1.371932029724121
+ },
+ "small|meaning of life|0": {
+  "tokens": 66,
+  "mean_lp": -2.143120164400752,
+  "min_lp": -24.28996467590332,
+  "top1": 0.6212121212121212,
+  "matched": true,
+  "seconds": 8.998934984207153
+ },
+ "small|productivity tips|0": {
+  "tokens": 120,
+  "mean_lp": -1.7359110282698085,
+  "min_lp": -35.0023307800293,
+  "top1": 0.5833333333333334,
+  "matched": true,
+  "seconds": 15.599536657333374
+ },
+ "small|describe blue|0": {
+  "tokens": 50,
+  "mean_lp": -3.850122668168652,
+  "min_lp": -32.180152893066406,
+  "top1": 0.56,
+  "matched": true,
+  "seconds": 7.016199588775635
+ },
+ "small|haiku about Python|0": {
+  "tokens": 23,
+  "mean_lp": -6.851235950618764,
+  "min_lp": -16.59195899963379,
+  "top1": 0.2608695652173913,
+  "matched": true,
+  "seconds": 3.762373447418213
+ },
+ "small|photosynthesis|0": {
+  "tokens": 117,
+  "mean_lp": -1.631954205874929,
+  "min_lp": -20.97756576538086,
+  "top1": 0.6153846153846154,
+  "matched": true,
+  "seconds": 15.42875361442566
+ },
+ "cpu|boiling point water|0": {
+  "tokens": 4,
+  "mean_lp": -9.834785714701866e-07,
+  "min_lp": -3.933914285880746e-06,
+  "top1": 1.0,
+  "matched": true,
+  "seconds": 1.1166911125183105
+ },
+ "small|french revolution|0": {
+  "tokens": 261,
+  "mean_lp": -1.510110839129397,
+  "min_lp": -19.038578033447266,
+  "top1": 0.6398467432950191,
+  "matched": true,
+  "seconds": 35.48700261116028
+ },
+ "cpu|speed of light unit|0": {
+  "tokens": 5,
+  "mean_lp": -0.014244856695108865,
+  "min_lp": -0.06853597611188889,
+  "top1": 1.0,
+  "matched": true,
+  "seconds": 1.387159824371338
+ },
+ "small|CAP theorem|0": {
+  "tokens": 567,
+  "mean_lp": -0.9009208692914366,
+  "min_lp": -18.80725860595703,
+  "top1": 0.763668430335097,
+  "matched": true,
+  "seconds": 74.31163287162781
+ },
+ "small|vaccines|0": {
+  "tokens": 144,
+  "mean_lp": -1.9409694902620234,
+  "min_lp": -20.525054931640625,
+  "top1": 0.5555555555555556,
+  "matched": true,
+  "seconds": 20.087560415267944
+ },
+ "cpu|TCP handshake|0": {
+  "tokens": 60,
+  "mean_lp": -0.18081993168817595,
+  "min_lp": -1.6189296245574951,
+  "top1": 0.95,
+  "matched": true,
+  "seconds": 7.849329948425293
+ },
+ "small|compound interest|0": {
+  "tokens": 2051,
+  "mean_lp": -0.16792542566105703,
+  "min_lp": -27.04291534423828,
+  "top1": 0.9546562652364701,
+  "matched": true,
+  "seconds": 258.73285698890686
+ },
+ "small|fizzbuzz|0": {
+  "tokens": 63,
+  "mean_lp": -1.7506398224534372,
+  "min_lp": -22.512439727783203,
+  "top1": 0.7777777777777778,
+  "matched": true,
+  "seconds": 8.48023509979248
+ },
+ "small|reverse list|0": {
+  "tokens": 511,
+  "mean_lp": -0.7824788366414175,
+  "min_lp": -36.989532470703125,
+  "top1": 0.87279843444227,
+  "matched": true,
+  "seconds": 61.694415807724
+ },
+ "small|sql top|0": {
+  "tokens": 338,
+  "mean_lp": -0.7772883768976423,
+  "min_lp": -31.754283905029297,
+  "top1": 0.834319526627219,
+  "matched": true,
+  "seconds": 46.61778998374939
+ },
+ "small|regex email|0": {
+  "tokens": 455,
+  "mean_lp": -1.0978869584068975,
+  "min_lp": -29.304624557495117,
+  "top1": 0.7604395604395604,
+  "matched": true,
+  "seconds": 59.35109496116638
+ },
+ "small|binary search|0": {
+  "tokens": 412,
+  "mean_lp": -0.6470000936218069,
+  "min_lp": -24.125667572021484,
+  "top1": 0.8592233009708737,
+  "matched": true,
+  "seconds": 53.59534788131714
+ },
+ "small|planets|0": {
+  "tokens": 33,
+  "mean_lp": -0.2961919958580812,
+  "min_lp": -9.774226188659668,
+  "top1": 0.9696969696969697,
+  "matched": true,
+  "seconds": 5.1319355964660645
+ },
+ "small|git commands|0": {
+  "tokens": 434,
+  "mean_lp": -0.7592444340387918,
+  "min_lp": -28.74444007873535,
+  "top1": 0.8640552995391705,
+  "matched": true,
+  "seconds": 58.103328704833984
+ },
+ "small|healthy breakfast|0": {
+  "tokens": 303,
+  "mean_lp": -1.8218675015148476,
+  "min_lp": -23.56975555419922,
+  "top1": 0.6897689768976898,
+  "matched": true,
+  "seconds": 39.111448526382446
+ },
+ "small|prime numbers|0": {
+  "tokens": 55,
+  "mean_lp": -1.5332555571675544,
+  "min_lp": -41.72322463989258,
+  "top1": 0.9090909090909091,
+  "matched": true,
+  "seconds": 7.034532308578491
+ },
+ "small|interview questions|0": {
+  "tokens": 235,
+  "mean_lp": -2.022350460930516,
+  "min_lp": -22.982534408569336,
+  "top1": 0.6085106382978723,
+  "matched": true,
+  "seconds": 29.991419553756714
+ },
+ "cpu|list vs tuple|0": {
+  "tokens": 55,
+  "mean_lp": -0.20579412735274485,
+  "min_lp": -1.2428938150405884,
+  "top1": 0.9090909090909091,
+  "matched": true,
+  "seconds": 7.053161859512329
+ },
+ "cpu|HTTPS encryption|0": {
+  "tokens": 98,
+  "mean_lp": -0.2824237570437673,
+  "min_lp": -1.5013223886489868,
+  "top1": 0.9285714285714286,
+  "matched": true,
+  "seconds": 13.107692956924438
+ },
+ "cpu|RAM vs storage|0": {
+  "tokens": 57,
+  "mean_lp": -0.14677123008937687,
+  "min_lp": -0.9299648404121399,
+  "top1": 1.0,
+  "matched": true,
+  "seconds": 7.40358829498291
+ },
+ "cpu|git rebase vs merge|0": {
+  "tokens": 51,
+  "mean_lp": -0.1582956805430816,
+  "min_lp": -1.4089746475219727,
+  "top1": 0.9803921568627451,
+  "matched": true,
+  "seconds": 6.859819173812866
+ },
+ "cpu|robot story|0": {
+  "tokens": 77,
+  "mean_lp": -0.5694658561973817,
+  "min_lp": -2.2633697986602783,
+  "top1": 0.8961038961038961,
+  "matched": true,
+  "seconds": 9.75865626335144
+ },
+ "cpu|meaning of life|0": {
+  "tokens": 39,
+  "mean_lp": -0.13732940639538546,
+  "min_lp": -1.0961538553237915,
+  "top1": 0.9743589743589743,
+  "matched": true,
+  "seconds": 5.003873586654663
+ },
+ "cpu|productivity tips|0": {
+  "tokens": 36,
+  "mean_lp": -0.21612483714738082,
+  "min_lp": -1.182860255241394,
+  "top1": 1.0,
+  "matched": true,
+  "seconds": 4.692712783813477
+ },
+ "cpu|describe blue|0": {
+  "tokens": 29,
+  "mean_lp": -0.2441044363198228,
+  "min_lp": -1.0745419263839722,
+  "top1": 1.0,
+  "matched": true,
+  "seconds": 3.8866517543792725
+ },
+ "cpu|haiku about Python|0": {
+  "tokens": 16,
+  "mean_lp": -0.3790688359908927,
+  "min_lp": -1.5736451148986816,
+  "top1": 0.9375,
+  "matched": true,
+  "seconds": 2.476935386657715
+ },
+ "cpu|photosynthesis|0": {
+  "tokens": 293,
+  "mean_lp": -0.2897159495171711,
+  "min_lp": -1.9809871912002563,
+  "top1": 0.9488054607508533,
+  "matched": true,
+  "seconds": 34.793968200683594
+ },
+ "cpu|french revolution|0": {
+  "tokens": 243,
+  "mean_lp": -0.40731547163757137,
+  "min_lp": -2.4370357990264893,
+  "top1": 0.9218106995884774,
+  "matched": true,
+  "seconds": 28.300086736679077
+ },
+ "cpu|CAP theorem|0": {
+  "tokens": 741,
+  "mean_lp": -0.3593644332597756,
+  "min_lp": -16.223468780517578,
+  "top1": 0.9649122807017544,
+  "matched": true,
+  "seconds": 86.36187887191772
+ },
+ "cpu|vaccines|0": {
+  "tokens": 158,
+  "mean_lp": -0.3258448186194351,
+  "min_lp": -1.9278098344802856,
+  "top1": 0.9050632911392406,
+  "matched": true,
+  "seconds": 18.446531772613525
+ },
+ "cpu|compound interest|0": {
+  "tokens": 761,
+  "mean_lp": -0.11951713730223901,
+  "min_lp": -18.588926315307617,
+  "top1": 0.9842312746386334,
+  "matched": true,
+  "seconds": 87.44248604774475
+ },
+ "cpu|fizzbuzz|0": {
+  "tokens": 55,
+  "mean_lp": -0.03267762975732467,
+  "min_lp": -0.8556200861930847,
+  "top1": 0.9818181818181818,
+  "matched": true,
+  "seconds": 6.742022752761841
+ },
+ "cpu|reverse list|0": {
+  "tokens": 128,
+  "mean_lp": -0.05932020829619322,
+  "min_lp": -1.5037200450897217,
+  "top1": 0.9765625,
+  "matched": true,
+  "seconds": 14.824037790298462
+ },
+ "cpu|sql top|0": {
+  "tokens": 257,
+  "mean_lp": -0.17464664466906504,
+  "min_lp": -11.243565559387207,
+  "top1": 0.9688715953307393,
+  "matched": true,
+  "seconds": 29.48400354385376
+ },
+ "cpu|regex email|0": {
+  "tokens": 535,
+  "mean_lp": -0.18736104793883737,
+  "min_lp": -2.261073350906372,
+  "top1": 0.9663551401869159,
+  "matched": true,
+  "seconds": 60.3017201423645
+ },
+ "cpu|binary search|0": {
+  "tokens": 350,
+  "mean_lp": -0.10414262871831982,
+  "min_lp": -1.7458893060684204,
+  "top1": 0.9857142857142858,
+  "matched": true,
+  "seconds": 40.166921615600586
+ },
+ "cpu|planets|0": {
+  "tokens": 50,
+  "mean_lp": -0.027424757090943785,
+  "min_lp": -0.6141443252563477,
+  "top1": 1.0,
+  "matched": true,
+  "seconds": 6.310015678405762
+ },
+ "cpu|git commands|0": {
+  "tokens": 173,
+  "mean_lp": -0.0977574780483396,
+  "min_lp": -1.2369369268417358,
+  "top1": 0.9942196531791907,
+  "matched": true,
+  "seconds": 20.531014442443848
+ },
+ "cpu|healthy breakfast|0": {
+  "tokens": 205,
+  "mean_lp": -0.2978838079012408,
+  "min_lp": -2.145289421081543,
+  "top1": 0.926829268292683,
+  "matched": true,
+  "seconds": 24.930609226226807
+ },
+ "cpu|prime numbers|0": {
+  "tokens": 55,
+  "mean_lp": -2.7591840964966898e-05,
+  "min_lp": -0.0015165975783020258,
+  "top1": 1.0,
+  "matched": true,
+  "seconds": 7.432023286819458
+ },
+ "cpu|interview questions|0": {
+  "tokens": 348,
+  "mean_lp": -0.329240846908457,
+  "min_lp": -1.8123608827590942,
+  "top1": 0.9482758620689655,
+  "matched": true,
+  "seconds": 42.5330228805542
+ }
+}

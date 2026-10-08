@@ -57,6 +57,7 @@ class NodeInfo(BaseModel):
     wallet: Optional[str] = None   # EVM wallet address; required for on-chain rewards
     project: Optional[str] = None  # if set, node only accepts tasks for this project
     warm: bool = True              # model loaded; a cold node needs load time before its first answer
+    can_score: bool = False        # backend can score given text (protocol/likelihood.py)
 
 
 class NodeStatus(str, Enum):
