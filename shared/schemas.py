@@ -56,6 +56,7 @@ class NodeInfo(BaseModel):
     ram_gb: Optional[float] = None
     wallet: Optional[str] = None   # EVM wallet address; required for on-chain rewards
     project: Optional[str] = None  # if set, node only accepts tasks for this project
+    warm: bool = True              # model loaded; a cold node needs load time before its first answer
 
 
 class NodeStatus(str, Enum):
