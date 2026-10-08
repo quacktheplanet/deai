@@ -70,7 +70,9 @@ from shared.schemas import (
 from ledger import Ledger
 from verification import (
     Verifier, ContentVerifier, RedundantExecutionVerifier, ComparatorUnavailable, make_verifier,
+    default_comparator,
 )
+from golden import GoldenSet, GoldenEntry
 from model_registry import ModelRegistry, ModelStack
 from committee import (
     CommitteeOutcome, Verdict, quorum, tally_votes,
@@ -92,6 +94,9 @@ async def _lifespan(app: FastAPI):
     warm = getattr(getattr(verifier, "_comparator", None), "warm_up", None)
     if warm is not None:
         asyncio.create_task(asyncio.to_thread(warm))
+    if _canary_interval > 0 and golden.entries:
+        asyncio.create_task(_canary_loop())
+        log.info(f"Canaries: about one every {_canary_interval:.0f}s  models={sorted(golden.models())}")
     if chain_ledger is not None:
         async def _loop():
             while True:
@@ -140,6 +145,13 @@ class NodeConnection:
         self.last_task_time: float = 0.0  # for round-robin tiebreaking
         self.tasks_completed = 0
         self.current_task_id: Optional[str] = None
+        # Cheap checks (§9). qualified: model -> None (pending) / True / False.
+        self.qualified: Dict[str, Optional[bool]] = {}
+        self.measured_tps: Optional[float] = None
+        self.canary_passed = 0
+        self.canary_failed = 0
+        self.canary_streak = 0          # consecutive failures; > 0 makes the node a suspect
+        self.excluded = False           # too many canary failures in a row: no more work
 
 
 # node_id → NodeConnection
@@ -161,7 +173,8 @@ results: Dict[str, TaskResult] = {}
 # was accepted optimistically; unchecked = no recheck (not sampled, content-only
 # verifier, or the model has no registered stack).
 stats = {"requests": 0, "completed": 0, "failed": 0,
-         "verified": 0, "unverified": 0, "unchecked": 0}
+         "verified": 0, "unverified": 0, "unchecked": 0,
+         "canaries_passed": 0, "canaries_failed": 0}
 
 # earnings ledger
 ledger = Ledger()
@@ -182,6 +195,14 @@ _committee_size: int = DEFAULT_COMMITTEE_SIZE
 _committee_timeout: float = DEFAULT_COMMITTEE_TIMEOUT_S
 _appeal_window: float = DEFAULT_APPEAL_WINDOW_S
 _slash_fraction: float = DEFAULT_SLASH_FRACTION
+
+# Cheap checks (VERIFICATION_PROTOCOL §9): known-answer tasks from a golden
+# set. All off unless --golden-file is given with --qualify-challenges and/or
+# --canary-interval.
+golden: GoldenSet = GoldenSet()
+_qualify_challenges: int = 0
+_canary_interval: float = 0.0
+_canary_max_fails: int = 3
 
 
 # ── Routing ───────────────────────────────────────────────────────────────────
@@ -252,6 +273,8 @@ def find_best_node(
             continue
         if node.info.node_id in exclude:
             continue
+        if not cleared_for(node, model):
+            continue
         if chain_ledger is not None and node.info.wallet:
             if not chain_ledger.is_eligible(node.info.wallet):
                 if node.info.node_id not in _warned_ineligible:
@@ -304,6 +327,8 @@ async def node_endpoint(ws: WebSocket):
 
         log.info(f"Node joined  id={node_id}  models={info.models}  gpu={info.gpu}")
         await ws.send_text(json.dumps({"type": "ack", "payload": {"node_id": node_id, "message": "Registered. Waiting for tasks."}}))
+        if any(_needs_qualification(m) for m in info.models):
+            asyncio.create_task(_qualify(nodes[node_id]))
 
         # Keep connection alive and handle incoming messages
         while True:
@@ -449,6 +474,8 @@ def _select_committee_nodes(
             continue
         if node.info.node_id in exclude_ids:
             continue
+        if not cleared_for(node, model):
+            continue
         if chain_ledger is not None and node.info.wallet:
             if not chain_ledger.is_eligible(node.info.wallet):
                 continue
@@ -589,6 +616,169 @@ async def _schedule_slash(node_id: str, wallet: Optional[str], fraction: float,
     _apply_slash(node_id, wallet, fraction, reason)
 
 
+# ── Cheap checks: qualification and canaries (VERIFICATION_PROTOCOL §9) ──────
+#
+# Known-answer tasks need ONE node, not two: the reference answer was computed
+# offline on the model's reference stack. A failure is evidence about the
+# node, but not proof (honest hardware can differ, and the golden reference is
+# itself one sample), so it never slashes: a failing node gets every paid task
+# rechecked, and only repeated failures in a row stop it getting work.
+
+def _needs_qualification(model: str) -> bool:
+    return _qualify_challenges > 0 and golden.has(model)
+
+
+def cleared_for(node: NodeConnection, model: str) -> bool:
+    """May this node get work for `model`? Not while its qualification for the
+    model is pending or failed, nor after repeated canary failures."""
+    if getattr(node, "excluded", False):
+        return False
+    if model == "any" or not _needs_qualification(model):
+        return True
+    return getattr(node, "qualified", {}).get(model) is True
+
+
+def is_suspect(node: NodeConnection) -> bool:
+    return getattr(node, "canary_streak", 0) > 0
+
+
+def _golden_task(entry: GoldenEntry) -> Task:
+    return Task(model=entry.model_id, messages=entry.messages, max_tokens=entry.max_tokens,
+                temperature=entry.temperature, seed=entry.seed)
+
+
+async def _run_on(node: NodeConnection, task: Task, timeout: float) -> tuple[Optional[TaskResult], float]:
+    """Send `task` to this node exactly like real work; return (result, seconds).
+    The node can't tell a golden task from a request."""
+    event = asyncio.Event()
+    pending_events[task.task_id] = event
+    node.status = NodeStatus.busy
+    node.last_task_time = time.time()
+    node.current_task_id = task.task_id
+    started = time.time()
+    msg = {"type": "task", "payload": {
+        "task_id": task.task_id, "model": task.model,
+        "messages": [m.model_dump() for m in task.messages],
+        "max_tokens": task.max_tokens, "temperature": task.temperature, "seed": task.seed}}
+    try:
+        await node.ws.send_text(json.dumps(msg))
+        await asyncio.wait_for(event.wait(), timeout=timeout)
+    except Exception:
+        pending_events.pop(task.task_id, None)
+        node.status = NodeStatus.idle
+        return None, time.time() - started
+    pending_events.pop(task.task_id, None)
+    return results.pop(task.task_id, None), time.time() - started
+
+
+async def _against_reference(entry: GoldenEntry, content: str) -> tuple[Optional[float], float]:
+    """(score, threshold). score is None when the comparator is unavailable and
+    the sequence ratio can't confirm a match: inconclusive, not a failure."""
+    comparator = getattr(verifier, "_comparator", None) or default_comparator
+    threshold = getattr(verifier, "agreement_threshold", 0.85)
+    try:
+        return await asyncio.to_thread(comparator, entry.reference, content), threshold
+    except ComparatorUnavailable:
+        ratio = default_comparator(entry.reference, content)
+        return (ratio if ratio >= threshold else None), threshold
+
+
+def _timeout_for(node: NodeConnection) -> float:
+    # One place to give slow starters more time (e.g. a sleeping node's load).
+    return _task_timeout
+
+
+async def _qualify(node: NodeConnection) -> None:
+    """Pre-flight: before paid work for model M, the node answers a few golden
+    tasks for M. A majority must match the reference. Their timing gives the
+    node's measured speed (tokens/s) — measured, not self-reported."""
+    models = [m for m in node.info.models if _needs_qualification(m)]
+    for m in models:
+        node.qualified[m] = None
+    speeds = []
+    for model in models:
+        challenges = golden.sample(model, _qualify_challenges)
+        passed = 0
+        for entry in challenges:
+            # Wait for the node to be free (it may be serving models that need
+            # no qualification), then take it at once, before anything else can.
+            while nodes.get(node.info.node_id) is node and node.status != NodeStatus.idle:
+                await asyncio.sleep(0.2)
+            if nodes.get(node.info.node_id) is not node:
+                return  # disconnected
+            res, took = await _run_on(node, _golden_task(entry), _timeout_for(node))
+            if res is None or not (res.content or "").strip():
+                log.info(f"QUALIFY    node={node.info.node_id}  model={model}  challenge: no answer")
+                continue
+            if took > 0 and res.tokens_used:
+                speeds.append(res.tokens_used / took)
+            score, threshold = await _against_reference(entry, res.content)
+            if score is None:
+                passed += 1  # comparator down: can't judge, accept optimistically
+                log.info(f"QUALIFY    node={node.info.node_id}  model={model}  challenge: unverified")
+            elif score >= threshold:
+                passed += 1
+        ok = passed * 2 > len(challenges)
+        node.qualified[model] = ok
+        log.log(logging.INFO if ok else logging.WARNING,
+                f"QUALIFY {'pass' if ok else 'FAIL'}  node={node.info.node_id}  model={model}  "
+                f"{passed}/{len(challenges)} matched the reference")
+    if speeds:
+        node.measured_tps = sorted(speeds)[len(speeds) // 2]
+
+
+async def send_canary(rng: Optional[random.Random] = None) -> Optional[bool]:
+    """Give one idle, cleared node a golden task as if it were a request.
+    Returns True (matched), False (didn't), or None (nothing sent, no answer,
+    or inconclusive). A matched canary is paid like any task, so payment
+    doesn't give it away."""
+    rng = rng or random.Random()
+    candidates = [(n, m) for n in nodes.values() if n.status == NodeStatus.idle and not n.excluded
+                  for m in n.info.models if golden.has(m) and cleared_for(n, m)]
+    if not candidates:
+        return None
+    node, model = rng.choice(candidates)
+    entry = rng.choice(golden.for_model(model))
+    task = _golden_task(entry)
+    res, _ = await _run_on(node, task, _timeout_for(node))
+    if res is None:
+        return None  # an operational fault, not evidence of cheating
+    score, threshold = (0.0, 0.0) if not (res.content or "").strip() else await _against_reference(entry, res.content)
+    nid = node.info.node_id
+    if score is None:
+        log.info(f"CANARY unverified  node={nid}  (comparator unavailable)")
+        return None
+    if score >= threshold:
+        node.canary_passed += 1
+        node.canary_streak = 0
+        stats["canaries_passed"] += 1
+        ledger.record_completion(node_id=nid, task_id=task.task_id, output_tokens=res.tokens_used)
+        if chain_ledger is not None and node.info.wallet:
+            asyncio.create_task(asyncio.to_thread(
+                chain_ledger.record_completion_onchain, node.info.wallet, res.tokens_used))
+        log.info(f"CANARY ok    node={nid}  model={model}  agreement {score:.3f}")
+        return True
+    node.canary_failed += 1
+    node.canary_streak += 1
+    stats["canaries_failed"] += 1
+    log.warning(f"CANARY MISS  node={nid}  model={model}  agreement {score:.3f} < {threshold:.3f}  "
+                f"streak={node.canary_streak}/{_canary_max_fails}  (its paid tasks are rechecked until it passes one)")
+    if node.canary_streak >= _canary_max_fails:
+        node.excluded = True
+        log.warning(f"CANARY       node={nid} excluded from routing after {node.canary_streak} misses in a row")
+    return False
+
+
+async def _canary_loop() -> None:
+    rng = random.Random()
+    while True:
+        await asyncio.sleep(rng.expovariate(1.0 / _canary_interval))
+        try:
+            await send_canary(rng)
+        except Exception as e:
+            log.error(f"canary error  err={e}")
+
+
 # ── HTTP: OpenAI-compatible inference endpoint ────────────────────────────────
 
 @app.post("/v1/chat/completions", response_model=ChatResponse)
@@ -643,7 +833,9 @@ async def chat_completions(req: ChatRequest, response: Response, _auth=Depends(_
     # Optimistic redundant check (Standard tier, docs/VERIFICATION.md). Sampled
     # and silent: the node is not told it is being checked.
     verification = "unchecked"
-    if effective_verifier.should_recheck(task, primary):
+    # A node that missed its last canary gets every paid task rechecked (§9).
+    suspect = is_suspect(primary_node) and isinstance(effective_verifier, RedundantExecutionVerifier)
+    if suspect or effective_verifier.should_recheck(task, primary):
         verification = "unverified"
         shadow = Task(
             model=task.model,
@@ -788,6 +980,10 @@ def network_status():
                 "gpu": n.info.gpu,
                 "vram_gb": n.info.vram_gb,
                 "status": n.status.value,
+                "qualified": n.qualified,
+                "measured_tokens_per_s": round(n.measured_tps, 1) if n.measured_tps else None,
+                "canaries": {"passed": n.canary_passed, "failed": n.canary_failed,
+                             "suspect": is_suspect(n), "excluded": n.excluded},
                 "tasks_completed": n.tasks_completed,
                 "balance": ledger.balance(n.info.node_id),
                 "score": score_node(n, n.info.models[0]) if n.status == NodeStatus.idle else "busy",
@@ -997,6 +1193,21 @@ if __name__ == "__main__":
                              "across orchestrator restarts. Loaded at startup; "
                              "subsequent registrations auto-save (VERIFICATION_PROTOCOL §12.6).")
 
+    # Cheap checks (VERIFICATION_PROTOCOL §9).
+    parser.add_argument("--golden-file", default=os.getenv("DAI_GOLDEN_FILE"),
+                        help="Known-answer set built with protocol/golden.py; enables the two options below.")
+    parser.add_argument("--qualify-challenges", type=int,
+                        default=int(os.getenv("DAI_QUALIFY_CHALLENGES", "0")),
+                        help="Golden tasks a node must answer (majority matching) before paid work for a "
+                             "model in the golden set. 0 = no qualification (default).")
+    parser.add_argument("--canary-interval", type=float,
+                        default=float(os.getenv("DAI_CANARY_INTERVAL", "0")),
+                        help="Mean seconds between canary (known-answer) tasks slipped into the work. "
+                             "0 = off (default).")
+    parser.add_argument("--canary-max-fails", type=int,
+                        default=int(os.getenv("DAI_CANARY_MAX_FAILS", "3")),
+                        help="Consecutive canary misses before a node stops getting work (default 3).")
+
     # Committee escalation (VERIFICATION_PROTOCOL §13). Defaults are §13.8
     # starting points; all four are testnet-calibrated.
     parser.add_argument("--committee-size", type=int,
@@ -1059,6 +1270,17 @@ if __name__ == "__main__":
         )
     else:
         log.info("Model registry: in-memory only (no --registry-file)")
+
+    if args.golden_file:
+        golden = GoldenSet.load(args.golden_file)
+        _qualify_challenges = args.qualify_challenges
+        _canary_interval = args.canary_interval
+        _canary_max_fails = args.canary_max_fails
+        log.info(f"Golden set: {len(golden.entries)} entries for {sorted(golden.models())}  "
+                 f"qualification={_qualify_challenges or 'off'}  "
+                 f"canaries={'every ~%.0fs' % _canary_interval if _canary_interval else 'off'}")
+    elif args.qualify_challenges or args.canary_interval:
+        parser.error("--qualify-challenges / --canary-interval need --golden-file")
 
     _committee_size = args.committee_size
     _committee_timeout = args.committee_timeout
