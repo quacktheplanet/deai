@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha test/dai.test.js",
-    "test:merkle": "mocha test/MerkleDistributor.test.js"
+    "test:merkle": "mocha test/MerkleDistributor.test.js",
+    "test:channels": "mocha test/PaymentChannels.test.js"
   },
   "keywords": [],
   "author": "",
